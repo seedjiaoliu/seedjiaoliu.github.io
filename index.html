@@ -242,30 +242,68 @@
         </div>
     </div>
 
+    <!-- 先加载 Supabase 库 -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    
     <script>
-        // Supabase 初始化
+        // ==================== 初始化部分 ====================
+        // 首先定义常量和全局变量
         const SUPABASE_URL = 'https://rzbwlwshuogycqaoivic.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Yndsd3NodW9neWNxYW9pdmljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzODExNjEsImV4cCI6MjA3MTk1NzE2MX0.mB3lSosRUSfSImp9IwHvTlJpTGdGjRBg-dLVq0S4zgI';
-        
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-            auth: { persistSession: true, autoRefreshToken: true },
-            global: { headers: { 'apikey': SUPABASE_ANON_KEY } }
-        });
-
         const SUPER_ADMIN = { username: 'seedtut', uid: 'seed114514', password: '114514TuT' };
+
+        // 初始化 Supabase 客户端（确保在所有函数之前）
+        let supabase;
         let currentUser = null;
         let isSuperAdmin = false;
         let currentTab = 'posts';
         let currentChatUser = null;
 
-        // 初始化
-        document.addEventListener('DOMContentLoaded', async function() {
-            console.log('页面加载完成');
-            await checkAuthState();
-            setupEventListeners();
-        });
+        // 初始化函数
+        function initSupabase() {
+            try {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+                    auth: { 
+                        persistSession: true,
+                        autoRefreshToken: true
+                    },
+                    global: {
+                        headers: { 'apikey': SUPABASE_ANON_KEY }
+                    }
+                });
+                console.log('Supabase 初始化成功');
+                return true;
+            } catch (error) {
+                console.error('Supabase 初始化失败:', error);
+                return false;
+            }
+        }
 
+        // ==================== 工具函数 ====================
+        function hideAllTabs() {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function showRegister() {
+            document.getElementById('registerModal').style.display = 'block';
+        }
+
+        function stringToColor(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            const hue = hash % 360;
+            return `hsl(${hue}, 70%, 60%)`;
+        }
+
+        // ==================== 核心功能函数 ====================
         function setupEventListeners() {
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.addEventListener('click', (e) => {
@@ -275,13 +313,12 @@
             });
         }
 
-        function hideAllTabs() {
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.style.display = 'none';
-            });
-        }
-
         function switchTab(tabName) {
+            if (!supabase) {
+                console.error('Supabase 未初始化');
+                return;
+            }
+
             currentTab = tabName;
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.classList.remove('active');
@@ -289,17 +326,25 @@
             document.querySelector(`.nav-tab[data-tab="${tabName}"]`).classList.add('active');
             
             hideAllTabs();
-            document.getElementById(`${tabName}Tab`).style.display = 'block';
+            const tabElement = document.getElementById(`${tabName}Tab`);
+            if (tabElement) {
+                tabElement.style.display = 'block';
+            }
             
             switch(tabName) {
                 case 'friends': loadFriends(); break;
                 case 'messages': loadMessageThreads(); break;
                 case 'posts': loadPosts(); break;
-                case 'add-friend': document.getElementById('searchResults').innerHTML = ''; break;
+                case 'add-friend': 
+                    document.getElementById('searchResults').innerHTML = '';
+                    document.getElementById('searchUser').value = '';
+                    break;
             }
         }
 
         async function checkAuthState() {
+            if (!supabase) return;
+            
             try {
                 const { data: { user } } = await supabase.auth.getUser();
                 if (user) {
@@ -316,9 +361,15 @@
         }
 
         async function getUserProfile(userId) {
+            if (!supabase) return null;
+            
             try {
                 const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
-                return error ? null : data;
+                if (error) {
+                    console.error('获取用户资料失败:', error);
+                    return null;
+                }
+                return data;
             } catch (error) {
                 console.error('获取用户资料异常:', error);
                 return null;
@@ -340,16 +391,12 @@
             switchTab('posts');
         }
 
-        function stringToColor(str) {
-            let hash = 0;
-            for (let i = 0; i < str.length; i++) {
-                hash = str.charCodeAt(i) + ((hash << 5) - hash);
-            }
-            const hue = hash % 360;
-            return `hsl(${hue}, 70%, 60%)`;
-        }
-
         async function login() {
+            if (!supabase) {
+                document.getElementById('loginMessage').textContent = '系统未初始化，请刷新页面';
+                return;
+            }
+
             const identifier = document.getElementById('loginIdentifier').value;
             const password = document.getElementById('loginPassword').value;
             const messageElement = document.getElementById('loginMessage');
@@ -380,10 +427,16 @@
                 
             } catch (error) {
                 messageElement.textContent = '登录失败: ' + error.message;
+                console.error('登录错误:', error);
             }
         }
 
         async function register() {
+            if (!supabase) {
+                document.getElementById('registerMessage').textContent = '系统未初始化，请刷新页面';
+                return;
+            }
+
             const username = document.getElementById('regUsername').value;
             const uid = document.getElementById('regUid').value;
             const password = document.getElementById('regPassword').value;
@@ -402,6 +455,30 @@
             }
 
             try {
+                // 检查用户名是否已存在
+                const { data: existingUser } = await supabase
+                    .from('profiles')
+                    .select('username')
+                    .eq('username', username)
+                    .maybeSingle();
+                    
+                if (existingUser) {
+                    messageElement.textContent = '用户名已存在';
+                    return;
+                }
+
+                // 检查UID是否已存在
+                const { data: existingUid } = await supabase
+                    .from('profiles')
+                    .select('uid')
+                    .eq('uid', uid)
+                    .maybeSingle();
+                    
+                if (existingUid) {
+                    messageElement.textContent = 'UID已存在';
+                    return;
+                }
+
                 const { error } = await supabase.from('profiles').insert([{
                     username: username,
                     uid: uid,
@@ -411,6 +488,7 @@
 
                 if (error) {
                     messageElement.textContent = '注册失败: ' + error.message;
+                    console.error('注册错误:', error);
                 } else {
                     messageElement.textContent = '注册成功！请登录';
                     messageElement.className = 'success-message';
@@ -418,10 +496,13 @@
                 }
             } catch (error) {
                 messageElement.textContent = '注册失败: ' + error.message;
+                console.error('注册异常:', error);
             }
         }
 
         async function createPost() {
+            if (!supabase || !currentUser) return;
+
             const content = document.getElementById('postContent').value;
             const messageElement = document.getElementById('postMessage');
             
@@ -440,25 +521,37 @@
 
                 if (error) {
                     messageElement.textContent = '发布失败: ' + error.message;
+                    console.error('发布错误:', error);
                 } else {
                     document.getElementById('postContent').value = '';
                     loadPosts();
                 }
             } catch (error) {
                 messageElement.textContent = '发布失败: ' + error.message;
+                console.error('发布异常:', error);
             }
         }
 
         async function loadPosts() {
+            if (!supabase) return;
+
             try {
                 const { data: posts, error } = await supabase.from('posts').select(`
                     *, profiles:user_id (username, uid, avatar_url)
                 `).order('created_at', { ascending: false });
 
-                if (error) throw error;
+                if (error) {
+                    console.error('加载帖子错误:', error);
+                    return;
+                }
 
                 const container = document.getElementById('postsContainer');
                 container.innerHTML = '';
+
+                if (!posts || posts.length === 0) {
+                    container.innerHTML = '<p>暂无帖子，快来发布第一条吧！</p>';
+                    return;
+                }
 
                 posts.forEach(post => {
                     const isAdminPost = post.profiles.uid === SUPER_ADMIN.uid;
@@ -479,17 +572,24 @@
                     container.appendChild(postElement);
                 });
             } catch (error) {
-                console.error('加载帖子失败:', error);
+                console.error('加载帖子异常:', error);
+                document.getElementById('postsContainer').innerHTML = '<p>加载帖子失败</p>';
             }
         }
 
         async function loadFriends() {
+            if (!supabase || !currentUser) return;
+
             try {
                 const { data: friends, error } = await supabase.from('friendships').select(`
                     *, friend:friend_id (id, username, uid)
                 `).eq('user_id', currentUser.id).eq('status', 'accepted');
 
-                if (error) throw error;
+                if (error) {
+                    console.error('加载好友错误:', error);
+                    document.getElementById('friendsContainer').innerHTML = '<p>加载好友列表失败</p>';
+                    return;
+                }
 
                 const container = document.getElementById('friendsContainer');
                 container.innerHTML = friends && friends.length > 0 ? '' : '<p>暂无好友</p>';
@@ -509,18 +609,24 @@
                     container.appendChild(friendElement);
                 });
             } catch (error) {
-                console.error('加载好友失败:', error);
+                console.error('加载好友异常:', error);
                 document.getElementById('friendsContainer').innerHTML = '<p>加载好友列表失败</p>';
             }
         }
 
         async function loadMessageThreads() {
+            if (!supabase || !currentUser) return;
+
             try {
                 const { data: messages, error } = await supabase.from('private_messages').select(`
                     *, sender:sender_id (username), receiver:receiver_id (username)
                 `).or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`).order('created_at', { ascending: false });
 
-                if (error) throw error;
+                if (error) {
+                    console.error('加载消息错误:', error);
+                    document.getElementById('messagesContainer').innerHTML = '<p>加载消息失败</p>';
+                    return;
+                }
 
                 const container = document.getElementById('messagesContainer');
                 container.innerHTML = '';
@@ -553,12 +659,14 @@
                     container.appendChild(threadElement);
                 });
             } catch (error) {
-                console.error('加载消息失败:', error);
+                console.error('加载消息异常:', error);
                 document.getElementById('messagesContainer').innerHTML = '<p>加载消息失败</p>';
             }
         }
 
         async function searchUsers() {
+            if (!supabase) return;
+
             const searchTerm = document.getElementById('searchUser').value;
             const messageElement = document.getElementById('searchMessage');
             
@@ -572,7 +680,10 @@
                 const { data: users, error } = await supabase.from('profiles').select('*')
                     .or(`username.ilike.%${searchTerm}%,uid.ilike.%${searchTerm}%`).neq('id', currentUser.id);
 
-                if (error) throw error;
+                if (error) {
+                    messageElement.textContent = '搜索失败: ' + error.message;
+                    return;
+                }
 
                 const results = document.getElementById('searchResults');
                 results.innerHTML = users && users.length > 0 ? '' : '<p>未找到用户</p>';
@@ -596,6 +707,8 @@
         }
 
         async function sendFriendRequest(friendId) {
+            if (!supabase || !currentUser) return;
+
             try {
                 const { error } = await supabase.from('friendships').insert([{
                     user_id: currentUser.id, friend_id: friendId, status: 'pending'
@@ -607,7 +720,9 @@
         }
 
         async function removeFriend(friendId) {
+            if (!supabase || !currentUser) return;
             if (!confirm('确定要删除好友吗？')) return;
+
             try {
                 const { error } = await supabase.from('friendships').delete()
                     .eq('user_id', currentUser.id).eq('friend_id', friendId);
@@ -619,6 +734,8 @@
         }
 
         async function startChat(userId) {
+            if (!supabase || !currentUser) return;
+
             try {
                 const { data: user, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
                 if (error) throw error;
@@ -633,6 +750,8 @@
         }
 
         async function loadMessages(userId) {
+            if (!supabase || !currentUser) return;
+
             try {
                 const { data: messages, error } = await supabase.from('private_messages').select('*')
                     .or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${userId}),and(sender_id.eq.${userId},receiver_id.eq.${currentUser.id})`)
@@ -663,6 +782,8 @@
         }
 
         async function sendMessage() {
+            if (!supabase || !currentUser || !currentChatUser) return;
+
             const content = document.getElementById('messageText').value;
             const messageElement = document.getElementById('messageSendMessage');
             
@@ -692,7 +813,9 @@
         }
 
         async function deletePost(postId) {
+            if (!supabase || !isSuperAdmin) return;
             if (!confirm('确定要删除这个帖子吗？')) return;
+
             try {
                 const { error } = await supabase.from('posts').delete().eq('id', postId);
                 if (error) throw error;
@@ -703,6 +826,8 @@
         }
 
         async function banUser() {
+            if (!supabase || !isSuperAdmin) return;
+
             const userId = document.getElementById('banUserId').value;
             const messageElement = document.getElementById('adminMessage');
             
@@ -722,15 +847,7 @@
             }
         }
 
-        function showRegister() { 
-            document.getElementById('registerModal').style.display = 'block'; 
-        }
-
-        function closeModal(modalId) { 
-            document.getElementById(modalId).style.display = 'none'; 
-        }
-
-        function logout() { 
+        function logout() {
             currentUser = null;
             document.getElementById('mainContent').classList.remove('logged-in');
             document.getElementById('authSection').style.display = 'block';
@@ -738,6 +855,29 @@
             document.getElementById('loginIdentifier').value = '';
             document.getElementById('loginPassword').value = '';
         }
+
+        function addFriend(userId) {
+            alert('加好友功能: ' + userId);
+        }
+
+        // ==================== 页面初始化 ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('页面加载完成，开始初始化...');
+            
+            // 初始化 Supabase
+            if (initSupabase()) {
+                // 设置事件监听器
+                setupEventListeners();
+                
+                // 检查认证状态
+                checkAuthState();
+                
+                console.log('初始化完成');
+            } else {
+                console.error('初始化失败');
+                document.getElementById('loginMessage').textContent = '系统初始化失败，请刷新页面';
+            }
+        });
     </script>
 </body>
 </html>
