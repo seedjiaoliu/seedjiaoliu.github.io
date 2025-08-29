@@ -176,6 +176,82 @@
             font-size: 16px;
         }
         
+        /* 新添加的样式 */
+        .keep-login {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            gap: 8px;
+        }
+        
+        .search-box {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .search-box input {
+            flex: 1;
+        }
+        
+        .friend-request-modal .modal-content {
+            max-width: 500px;
+        }
+        
+        .friend-requests-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 15px 0;
+        }
+        
+        .friend-request-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .friend-request-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .image-upload-container {
+            margin: 15px 0;
+            border: 2px dashed #ddd;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .image-upload-container:hover {
+            border-color: #3498db;
+        }
+        
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            margin-top: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .post-image {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        
+        .sub-admin-panel {
+            background: #dfe6e9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #3498db;
+        }
+        
         /* 响应式设计 */
         @media (max-width: 768px) {
             .main-content {
@@ -214,6 +290,10 @@
                     <label>密码</label>
                     <input type="password" id="loginPassword" placeholder="输入密码">
                 </div>
+                <div class="keep-login">
+                    <input type="checkbox" id="keepLogin">
+                    <label for="keepLogin">保持登录状态</label>
+                </div>
                 <button onclick="login()">登录</button>
                 <div id="loginMessage" class="error-message"></div>
                 <p style="margin-top: 15px;">还没有账号？ <a href="#" onclick="showRegister()" style="color: #3498db; text-decoration: underline;">点击注册</a></p>
@@ -225,6 +305,10 @@
                     <div class="user-avatar" id="userAvatar"></div>
                     <h3 id="userName"></h3>
                     <div class="admin-badge" id="adminBadge" style="display: none;">管理员</div>
+                    <div class="admin-badge" id="subAdminBadge" style="display: none; background: #3498db;">小管理员</div>
+                    <button onclick="showFriendRequests()" style="margin-top: 15px; width: auto; padding: 10px 20px; background: #9b59b6;">
+                        好友请求 <span id="friendRequestCount" style="background: white; color: #9b59b6; border-radius: 50%; padding: 2px 6px; display: none;">0</span>
+                    </button>
                     <button onclick="logout()" style="margin-top: 15px; width: auto; padding: 10px 20px; background: #95a5a6;">退出登录</button>
                 </div>
 
@@ -234,747 +318,1091 @@
                     <div class="nav-tab" data-tab="messages">💬 私信消息</div>
                     <div class="nav-tab" data-tab="add-friend">➕ 添加好友</div>
                     <div class="nav-tab" data-tab="admin" id="adminTab" style="display: none;">⚙️ 管理面板</div>
+                    <div class="nav-tab" data-tab="sub-admin" id="subAdminTab" style="display: none;">🔧 小管理面板</div>
                 </div>
             </aside>
 
             <main class="content-area">
                 <!-- 帖子广场 -->
                 <div class="tab-content active" id="postsTab">
+                    <div class="search-box">
+                        <input type="text" id="postSearch" placeholder="搜索帖子关键词...">
+                        <button onclick="searchPosts()">搜索</button>
+                    </div>
                     <div class="post-form">
                         <h3>发布新内容</h3>
                         <div class="form-group">
                             <textarea id="postContent" placeholder="分享你的想法..." rows="4"></textarea>
                         </div>
+                        <div class="image-upload-container" onclick="document.getElementById('imageUpload').click()">
+                            <input type="file" id="imageUpload" accept="image/*" style="display: none;" onchange="previewImage(this)">
+                            <p>点击上传图片或拖拽到此处</p>
+                            <img id="imagePreview" class="image-preview">
+                        </div>
                         <button onclick="createPost()">发布</button>
                         <div id="postMessage" class="error-message"></div>
                     </div>
                     <div class="posts-container" id="postsContainer"></div>
+                </div>            <!-- 好友列表 -->
+            <div class="tab-content" id="friendsTab">
+                <div class="friends-container" id="friendsContainer">
+                    <div class="empty-state">加载中...</div>
                 </div>
+            </div>
 
-                <!-- 好友列表 -->
-                <div class="tab-content" id="friendsTab">
-                    <div class="friends-container" id="friendsContainer">
-                        <div class="empty-state">加载中...</div>
+            <!-- 私信消息 -->
+            <div class="tab-content" id="messagesTab">
+                <div class="messages-container" id="messagesContainer">
+                    <div class="empty-state">加载中...</div>
+                </div>
+            </div>
+
+            <!-- 添加好友 -->
+            <div class="tab-content" id="addFriendTab">
+                <div class="form-group">
+                    <label>搜索用户</label>
+                    <input type="text" id="searchUser" placeholder="输入用户名或UID">
+                    <button onclick="searchUsers()" style="margin-top: 10px;">搜索</button>
+                    <div id="searchMessage" class="error-message"></div>
+                </div>
+                <div id="searchResults" class="search-results">
+                    <div class="empty-state">请输入关键词搜索用户</div>
+                </div>
+            </div>
+
+            <!-- 管理面板 -->
+            <div class="tab-content" id="adminTabContent">
+                <div class="admin-panel">
+                    <h3>管理员面板</h3>
+                    <div class="admin-actions">
+                        <input type="text" id="banUserId" placeholder="输入用户ID" class="admin-input">
+                        <button onclick="banUser()" class="btn-danger">封禁用户</button>
+                        <input type="text" id="deletePostId" placeholder="输入帖子ID" class="admin-input">
+                        <button onclick="deletePost()" class="btn-danger">删除帖子</button>
+                        <input type="text" id="assignSubAdminId" placeholder="输入用户ID" class="admin-input">
+                        <button onclick="assignSubAdmin()" class="btn-success">设为小管理员</button>
+                        <input type="text" id="removeSubAdminId" placeholder="输入用户ID" class="admin-input">
+                        <button onclick="removeSubAdmin()" class="btn-danger">移除小管理员</button>
+                        <div id="adminMessage" class="error-message"></div>
                     </div>
                 </div>
+            </div>
 
-                <!-- 私信消息 -->
-                <div class="tab-content" id="messagesTab">
-                    <div class="messages-container" id="messagesContainer">
-                        <div class="empty-state">加载中...</div>
+            <!-- 小管理面板 -->
+            <div class="tab-content" id="subAdminTabContent">
+                <div class="sub-admin-panel">
+                    <h3>小管理员面板</h3>
+                    <p>您拥有部分管理权限，可以处理以下操作：</p>
+                    <div class="admin-actions">
+                        <input type="text" id="subAdminDeletePostId" placeholder="输入帖子ID" class="admin-input">
+                        <button onclick="deletePostAsSubAdmin()" class="btn-danger">删除帖子</button>
+                        <input type="text" id="subAdminWarnUserId" placeholder="输入用户ID" class="admin-input">
+                        <button onclick="warnUser()" class="btn-danger">警告用户</button>
+                        <div id="subAdminMessage" class="error-message"></div>
                     </div>
                 </div>
-
-                <!-- 添加好友 -->
-                <div class="tab-content" id="addFriendTab">
-                    <div class="form-group">
-                        <label>搜索用户</label>
-                        <input type="text" id="searchUser" placeholder="输入用户名或UID">
-                        <button onclick="searchUsers()" style="margin-top: 10px;">搜索</button>
-                        <div id="searchMessage" class="error-message"></div>
-                    </div>
-                    <div id="searchResults" class="search-results">
-                        <div class="empty-state">请输入关键词搜索用户</div>
-                    </div>
-                </div>
-
-                <!-- 管理面板 -->
-                <div class="tab-content" id="adminTabContent">
-                    <div class="admin-panel">
-                        <h3>管理员面板</h3>
-                        <div class="admin-actions">
-                            <input type="text" id="banUserId" placeholder="输入用户ID" class="admin-input">
-                            <button onclick="banUser()" class="btn-danger">封禁用户</button>
-                            <input type="text" id="deletePostId" placeholder="输入帖子ID" class="admin-input">
-                            <button onclick="deletePost()" class="btn-danger">删除帖子</button>
-                            <div id="adminMessage" class="error-message"></div>
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
-
-        <footer>© 2024 Seed交流平台 - 已连接到你的Supabase数据库</footer>
+            </div>
+        </main>
     </div>
 
-    <!-- 注册模态框 -->
-    <div class="modal" id="registerModal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal('registerModal')">×</span>
-            <h2>注册新账号</h2>
-            <div class="form-group">
-                <label>用户名</label>
-                <input type="text" id="regUsername" placeholder="设置用户名（2-20字符）">
-            </div>
-            <div class="form-group">
-                <label>UID</label>
-                <input type="text" id="regUid" placeholder="设置唯一UID（字母数字组合）">
-            </div>
-            <div class="form-group">
-                <label>密码</label>
-                <input type="password" id="regPassword" placeholder="设置密码（至少6位）">
-            </div>
-            <div class="form-group">
-                <label>确认密码</label>
-                <input type="password" id="regConfirmPassword" placeholder="再次输入密码">
-            </div>
-            <button onclick="register()">注册</button>
-            <div id="registerMessage" class="error-message"></div>
+    <footer>© 2024 Seed交流平台 - 已连接到你的Supabase数据库</footer>
+</div>
+
+<!-- 注册模态框 -->
+<div class="modal" id="registerModal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeModal('registerModal')">×</span>
+        <h2>注册新账号</h2>
+        <div class="form-group">
+            <label>用户名</label>
+            <input type="text" id="regUsername" placeholder="设置用户名（2-20字符）">
+        </div>
+        <div class="form-group">
+            <label>UID</label>
+            <input type="text" id="regUid" placeholder="设置唯一UID（字母数字组合）">
+        </div>
+        <div class="form-group">
+            <label>密码</label>
+            <input type="password" id="regPassword" placeholder="设置密码（至少6位）">
+        </div>
+        <div class="form-group">
+            <label>确认密码</label>
+            <input type="password" id="regConfirmPassword" placeholder="再次输入密码">
+        </div>
+        <button onclick="register()">注册</button>
+        <div id="registerMessage" class="error-message"></div>
+    </div>
+</div>
+
+<!-- 消息模态框 -->
+<div class="modal" id="messageModal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeModal('messageModal')">×</span>
+        <h3 id="messageUserName">私信</h3>
+        <div class="message-content" id="messageContent" style="height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; background: #fafafa; border-radius: 8px;"></div>
+        <div class="form-group">
+            <textarea id="messageText" placeholder="输入消息..." rows="3"></textarea>
+        </div>
+        <button onclick="sendMessage()" class="btn-success">发送消息</button>
+        <div id="messageSendMessage" class="error-message"></div>
+    </div>
+</div>
+
+<!-- 好友请求模态框 -->
+<div class="modal friend-request-modal" id="friendRequestModal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeModal('friendRequestModal')">×</span>
+        <h3>好友请求</h3>
+        <div class="friend-requests-list" id="friendRequestsList">
+            <div class="empty-state">加载中...</div>
         </div>
     </div>
+</div>
 
-    <!-- 消息模态框 -->
-    <div class="modal" id="messageModal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal('messageModal')">×</span>
-            <h3 id="messageUserName">私信</h3>
-            <div class="message-content" id="messageContent" style="height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; background: #fafafa; border-radius: 8px;"></div>
-            <div class="form-group">
-                <textarea id="messageText" placeholder="输入消息..." rows="3"></textarea>
-            </div>
-            <button onclick="sendMessage()" class="btn-success">发送消息</button>
-            <div id="messageSendMessage" class="error-message"></div>
-        </div>
-    </div>
+<!-- 先加载 Supabase 库 -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
-    <!-- 先加载 Supabase 库 -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script>
+    // ==================== 初始化部分 ====================
+    const SUPABASE_URL = 'https://rzbwlwshuogycqaoivic.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Yndsd3NodW9neWNxYW9pdmljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzODExNjEsImV4cCI6MjA3MTk1NzE2MX0.mB3lSosRUSfSImp9IwHvTlJpTGdGjRBg-dLVq0S4zgI';
+    const SUPER_ADMIN = { username: 'seedtut', uid: 'seed114514', password: '114514TuT' };
+
+    let supabase;
+    let currentUser = null;
+    let currentUserProfile = null;
+    let isSuperAdmin = false;
+    let isSubAdmin = false;
+    let currentTab = 'posts';
+    let currentChatUser = null;
+    let uploadedImage = null;
+
+    function initSupabase() {
+        try {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+                auth: { persistSession: true, autoRefreshToken: true },
+                global: { headers: { 'apikey': SUPABASE_ANON_KEY } }
+            });
+            console.log('Supabase 初始化成功');
+            return true;
+        } catch (error) {
+            console.error('Supabase 初始化失败:', error);
+            return false;
+        }
+    }
+
+    // ==================== 工具函数 ====================
+    function hideAllTabs() {
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.style.display = 'none';
+        });
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    function showRegister() {
+        document.getElementById('registerModal').style.display = 'block';
+    }
+
+    function stringToColor(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const hue = hash % 360;
+        return `hsl(${hue}, 70%, 60%)`;
+    }
+
+    function getInitials(username) {
+        return username ? username.charAt(0).toUpperCase() : '?';
+    }
+
+    // 图片预览功能
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('imagePreview');
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                uploadedImage = input.files[0];
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // 保持登录状态功能
+    function setKeepLoginCookie() {
+        if (document.getElementById('keepLogin').checked) {
+            const date = new Date();
+            date.setTime(date.getTime() + (30 * 24 * 60 * 60 * 1000)); // 30天
+            document.cookie = `keepLogin=true; expires=${date.toUTCString()}; path=/`;
+        }
+    }
+
+    function checkKeepLoginCookie() {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith('keepLogin=')) {
+                return cookie.substring('keepLogin='.length, cookie.length) === 'true';
+            }
+        }
+        return false;
+    }// ==================== 核心功能函数 ====================
+function setupEventListeners() {
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            const tabName = e.target.getAttribute('data-tab');
+            switchTab(tabName);
+        });
+    });
+
+    // 帖子搜索输入框回车键支持
+    document.getElementById('postSearch').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            searchPosts();
+        }
+    });
+}
+
+function switchTab(tabName) {
+    if (!supabase) return;
+
+    currentTab = tabName;
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelector(`.nav-tab[data-tab="${tabName}"]`).classList.add('active');
     
-    <script>
-        // ==================== 初始化部分 ====================
-        const SUPABASE_URL = 'https://rzbwlwshuogycqaoivic.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Yndsd3NodW9neWNxYW9pdmljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzODExNjEsImV4cCI6MjA3MTk1NzE2MX0.mB3lSosRUSfSImp9IwHvTlJpTGdGjRBg-dLVq0S4zgI';
-        const SUPER_ADMIN = { username: 'seedtut', uid: 'seed114514', password: '114514TuT' };
+    hideAllTabs();
+    const tabElement = document.getElementById(`${tabName}Tab`);
+    if (tabElement) {
+        tabElement.style.display = 'block';
+    }
+    
+    switch(tabName) {
+        case 'friends': loadFriends(); break;
+        case 'messages': loadMessageThreads(); break;
+        case 'posts': loadPosts(); break;
+        case 'add-friend': 
+            document.getElementById('searchResults').innerHTML = '<div class="empty-state">请输入关键词搜索用户</div>';
+            document.getElementById('searchUser').value = '';
+            break;
+        case 'admin':
+            document.getElementById('banUserId').value = '';
+            document.getElementById('deletePostId').value = '';
+            document.getElementById('assignSubAdminId').value = '';
+            document.getElementById('removeSubAdminId').value = '';
+            break;
+        case 'sub-admin':
+            document.getElementById('subAdminDeletePostId').value = '';
+            document.getElementById('subAdminWarnUserId').value = '';
+            break;
+    }
+}
 
-        let supabase;
-        let currentUser = null;
-        let isSuperAdmin = false;
-        let currentTab = 'posts';
-        let currentChatUser = null;
-
-        function initSupabase() {
-            try {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-                    auth: { persistSession: true, autoRefreshToken: true },
-                    global: { headers: { 'apikey': SUPABASE_ANON_KEY } }
-                });
-                console.log('Supabase 初始化成功');
-                return true;
-            } catch (error) {
-                console.error('Supabase 初始化失败:', error);
-                return false;
-            }
+async function checkAuthState() {
+    if (!supabase) return;
+    
+    try {
+        // 检查是否有保持登录的cookie
+        const shouldKeepLogin = checkKeepLoginCookie();
+        if (shouldKeepLogin) {
+            document.getElementById('keepLogin').checked = true;
         }
-
-        // ==================== 工具函数 ====================
-        function hideAllTabs() {
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.style.display = 'none';
-            });
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
-        function showRegister() {
-            document.getElementById('registerModal').style.display = 'block';
-        }
-
-        function stringToColor(str) {
-            let hash = 0;
-            for (let i = 0; i < str.length; i++) {
-                hash = str.charCodeAt(i) + ((hash << 5) - hash);
-            }
-            const hue = hash % 360;
-            return `hsl(${hue}, 70%, 60%)`;
-        }
-
-        function getInitials(username) {
-            return username ? username.charAt(0).toUpperCase() : '?';
-        }
-
-        // ==================== 核心功能函数 ====================
-        function setupEventListeners() {
-            document.querySelectorAll('.nav-tab').forEach(tab => {
-                tab.addEventListener('click', (e) => {
-                    const tabName = e.target.getAttribute('data-tab');
-                    switchTab(tabName);
-                });
-            });
-        }
-
-        function switchTab(tabName) {
-            if (!supabase) return;
-
-            currentTab = tabName;
-            document.querySelectorAll('.nav-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelector(`.nav-tab[data-tab="${tabName}"]`).classList.add('active');
-            
-            hideAllTabs();
-            const tabElement = document.getElementById(`${tabName}Tab`);
-            if (tabElement) {
-                tabElement.style.display = 'block';
-            }
-            
-            switch(tabName) {
-                case 'friends': loadFriends(); break;
-                case 'messages': loadMessageThreads(); break;
-                case 'posts': loadPosts(); break;
-                case 'add-friend': 
-                    document.getElementById('searchResults').innerHTML = '<div class="empty-state">请输入关键词搜索用户</div>';
-                    document.getElementById('searchUser').value = '';
-                    break;
-                case 'admin':
-                    document.getElementById('banUserId').value = '';
-                    document.getElementById('deletePostId').value = '';
-                    break;
-            }
-        }
-
-        async function checkAuthState() {
-            if (!supabase) return;
-            
-            try {
-                const { data: { user } } = await supabase.auth.getUser();
-                if (user) {
-                    const userProfile = await getUserProfile(user.id);
-                    if (userProfile) {
-                        currentUser = { id: user.id };
-                        isSuperAdmin = userProfile.uid === SUPER_ADMIN.uid;
-                        showUserInfo(userProfile);
-                    }
-                }
-            } catch (error) {
-                console.error('认证检查异常:', error);
-            }
-        }
-
-        async function getUserProfile(userId) {
-            if (!supabase) return null;
-            
-            try {
-                const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
-                if (error) {
-                    console.error('获取用户资料失败:', error);
-                    return null;
-                }
-                return data;
-            } catch (error) {
-                console.error('获取用户资料异常:', error);
-                return null;
-            }
-        }
-
-        function showUserInfo(profile) {
-            document.getElementById('mainContent').classList.add('logged-in');
-            document.getElementById('authSection').style.display = 'none';
-            
-            document.getElementById('userName').textContent = profile.username;
-            const userAvatar = document.getElementById('userAvatar');
-            userAvatar.textContent = getInitials(profile.username);
-            userAvatar.style.background = stringToColor(profile.username);
-            
-            if (isSuperAdmin) {
-                document.getElementById('adminBadge').style.display = 'block';
-                document.getElementById('adminTab').style.display = 'block';
-            }
-            
-            switchTab('posts');
-        }
-
-        async function login() {
-            if (!supabase) {
-                document.getElementById('loginMessage').textContent = '系统未初始化，请刷新页面';
-                return;
-            }
-
-            const identifier = document.getElementById('loginIdentifier').value;
-            const password = document.getElementById('loginPassword').value;
-            const messageElement = document.getElementById('loginMessage');
-            
-            messageElement.textContent = '';
-            if (!identifier || !password) {
-                messageElement.textContent = '请输入用户名和密码';
-                return;
-            }
-
-            try {
-                const { data: user, error } = await supabase.from('profiles').select('*')
-                    .or(`username.eq.${identifier},uid.eq.${identifier}`).single();
-
-                if (error || !user) {
-                    messageElement.textContent = '用户不存在';
-                    return;
-                }
-
-                if (user.password !== password) {
-                    messageElement.textContent = '密码错误';
-                    return;
-                }
-
+        
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+            const userProfile = await getUserProfile(user.id);
+            if (userProfile) {
                 currentUser = { id: user.id };
-                isSuperAdmin = user.uid === SUPER_ADMIN.uid;
-                showUserInfo(user);
+                currentUserProfile = userProfile;
+                isSuperAdmin = userProfile.uid === SUPER_ADMIN.uid;
+                isSubAdmin = userProfile.is_sub_admin || false;
+                showUserInfo(userProfile);
+                checkFriendRequests();
+            }
+        }
+    } catch (error) {
+        console.error('认证检查异常:', error);
+    }
+}
+
+async function getUserProfile(userId) {
+    if (!supabase) return null;
+    
+    try {
+        const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
+        if (error) {
+            console.error('获取用户资料失败:', error);
+            return null;
+        }
+        return data;
+    } catch (error) {
+        console.error('获取用户资料异常:', error);
+        return null;
+    }
+}
+
+function showUserInfo(profile) {
+    document.getElementById('mainContent').classList.add('logged-in');
+    document.getElementById('authSection').style.display = 'none';
+    
+    document.getElementById('userName').textContent = profile.username;
+    const userAvatar = document.getElementById('userAvatar');
+    userAvatar.textContent = getInitials(profile.username);
+    userAvatar.style.background = stringToColor(profile.username);
+    
+    if (isSuperAdmin) {
+        document.getElementById('adminBadge').style.display = 'block';
+        document.getElementById('adminTab').style.display = 'block';
+    }
+    
+    if (isSubAdmin) {
+        document.getElementById('subAdminBadge').style.display = 'block';
+        document.getElementById('subAdminTab').style.display = 'block';
+    }
+    
+    switchTab('posts');
+}
+
+async function login() {
+    if (!supabase) {
+        document.getElementById('loginMessage').textContent = '系统未初始化，请刷新页面';
+        return;
+    }
+
+    const identifier = document.getElementById('loginIdentifier').value;
+    const password = document.getElementById('loginPassword').value;
+    const messageElement = document.getElementById('loginMessage');
+    
+    messageElement.textContent = '';
+    if (!identifier || !password) {
+        messageElement.textContent = '请输入用户名和密码';
+        return;
+    }
+
+    try {
+        const { data: user, error } = await supabase.from('profiles').select('*')
+            .or(`username.eq.${identifier},uid.eq.${identifier}`).single();
+
+        if (error || !user) {
+            messageElement.textContent = '用户不存在';
+            return;
+        }
+
+        if (user.password !== password) {
+            messageElement.textContent = '密码错误';
+            return;
+        }
+
+        // 设置保持登录cookie
+        setKeepLoginCookie();
+
+        currentUser = { id: user.id };
+        currentUserProfile = user;
+        isSuperAdmin = user.uid === SUPER_ADMIN.uid;
+        isSubAdmin = user.is_sub_admin || false;
+        showUserInfo(user);
+        checkFriendRequests();
+        
+    } catch (error) {
+        messageElement.textContent = '登录失败: ' + error.message;
+        console.error('登录错误:', error);
+    }
+}
+
+async function register() {
+    if (!supabase) {
+        document.getElementById('registerMessage').textContent = '系统未初始化，请刷新页面';
+        return;
+    }
+
+    const username = document.getElementById('regUsername').value;
+    const uid = document.getElementById('regUid').value;
+    const password = document.getElementById('regPassword').value;
+    const confirmPassword = document.getElementById('regConfirmPassword').value;
+    const messageElement = document.getElementById('registerMessage');
+    
+    messageElement.textContent = '';
+    if (!username || !uid || !password) {
+        messageElement.textContent = '请填写所有字段';
+        return;
+    }
+    
+    if (password !== confirmPassword) {
+        messageElement.textContent = '两次输入的密码不一致';
+        return;
+    }
+
+    try {
+        const { data: existingUser } = await supabase
+            .from('profiles')
+            .select('username')
+            .eq('username', username)
+            .maybeSingle();
+            
+        if (existingUser) {
+            messageElement.textContent = '用户名已存在';
+            return;
+        }
+
+        const { data: existingUid } = await supabase
+            .from('profiles')
+            .select('uid')
+            .eq('uid', uid)
+            .maybeSingle();
+            
+        if (existingUid) {
+            messageElement.textContent = 'UID已存在';
+            return;
+        }
+
+        const { error } = await supabase.from('profiles').insert([{
+            username: username,
+            uid: uid,
+            password: password,
+            created_at: new Date().toISOString()
+        }]);
+
+        if (error) {
+            messageElement.textContent = '注册失败: ' + error.message;
+            console.error('注册错误:', error);
+        } else {
+            messageElement.textContent = '注册成功！请登录';
+            messageElement.className = 'success-message';
+            setTimeout(() => closeModal('registerModal'), 2000);
+        }
+    } catch (error) {
+        messageElement.textContent = '注册失败: ' + error.message;
+        console.error('注册异常:', error);
+    }
+}
+
+async function createPost() {
+    if (!supabase || !currentUser) return;
+
+    const content = document.getElementById('postContent').value;
+    const messageElement = document.getElementById('postMessage');
+    
+    messageElement.textContent = '';
+    if (!content) {
+        messageElement.textContent = '请输入内容';
+        return;
+    }
+
+    try {
+        let imageUrl = null;
+        
+        // 如果有上传图片，先上传图片到Supabase存储
+        if (uploadedImage) {
+            const fileName = `${Date.now()}_${uploadedImage.name}`;
+            const { data, error } = await supabase.storage
+                .from('post-images')
+                .upload(fileName, uploadedImage);
+            
+            if (error) {
+                console.error('图片上传失败:', error);
+            } else {
+                // 获取图片公共URL
+                const { data: urlData } = supabase.storage
+                    .from('post-images')
+                    .getPublicUrl(fileName);
+                imageUrl = urlData.publicUrl;
+            }
+        }
+
+        const { error } = await supabase.from('posts').insert([{
+            user_id: currentUser.id,
+            content: content,
+            image_url: imageUrl,
+            created_at: new Date().toISOString()
+        }]);
+
+        if (error) {
+            messageElement.textContent = '发布失败: ' + error.message;
+            console.error('发布错误:', error);
+        } else {
+            document.getElementById('postContent').value = '';
+            // 清除图片预览和上传的文件
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('imagePreview').src = '';
+            document.getElementById('imageUpload').value = '';
+            uploadedImage = null;
+            
+            loadPosts();
+        }
+    } catch (error) {
+        messageElement.textContent = '发布失败: ' + error.message;
+        console.error('发布异常:', error);
+    }
+}
+
+async function searchPosts() {
+    if (!supabase) return;
+    
+    const searchTerm = document.getElementById('postSearch').value;
+    
+    try {
+        let query = supabase.from('posts').select(`
+            *, profiles:user_id (id, username, uid, avatar_url)
+        `).order('created_at', { ascending: false });
+        
+        if (searchTerm) {
+            query = query.ilike('content', `%${searchTerm}%`);
+        }
+        
+        const { data: posts, error } = await query;
+        
+        if (error) {
+            console.error('搜索帖子错误:', error);
+            document.getElementById('postsContainer').innerHTML = '<div class="empty-state">搜索帖子失败</div>';
+            return;
+        }
+
+        const container = document.getElementById('postsContainer');
+        container.innerHTML = '';
+
+        if (!posts || posts.length === 0) {
+            container.innerHTML = '<div class="empty-state">暂无帖子，快来发布第一条吧！</div>';
+            return;
+        }
+
+        posts.forEach(post => {
+            const isAdminPost = post.profiles.uid === SUPER_ADMIN.uid;
+            const postElement = document.createElement('div');
+            postElement.className = 'post';
+            
+            let imageHtml = '';
+            if (post.image_url) {
+                imageHtml = `<img src="${post.image_url}" class="post-image" alt="帖子图片">`;
+            }
+            
+            postElement.innerHTML = `
+                <div class="post-header">
+                    <div><strong>${post.profiles.username}</strong>${isAdminPost ? ' <span class="admin-badge">管理员</span>' : ''}</div>
+                    <div style="color: #666; font-size: 14px;">${new Date(post.created_at).toLocaleString()}</div>
+                </div>
+                <div style="margin: 15px 0; line-height: 1.6;">${post.content}</div>
+                ${imageHtml}
+                <div class="post-actions">
+                    <button class="action-btn" onclick="addFriend('${post.profiles.id}')">
+                        <span style="margin-right: 5px;">👥</span>加好友
+                    </button>
+                    <button class="action-btn" onclick="startChat('${post.profiles.id}')">
+                        <span style="margin-right: 5px;">💬</span>私信
+                    </button>
+                    ${isSuperAdmin || isSubAdmin ? `
+                    <button class="action-btn" onclick="deletePost('${post.id}')" style="color: red; border-color: red;">
+                        <span style="margin-right: 5px;">🗑️</span>删除
+                    </button>` : ''}
+                </div>
+            `;
+            container.appendChild(postElement);
+        });
+    } catch (error) {
+        console.error('搜索帖子异常:', error);
+        document.getElementById('postsContainer').innerHTML = '<div class="empty-state">搜索帖子失败</div>';
+    }
+}
+
+async function loadPosts() {
+    if (!supabase) return;
+
+    try {
+        const { data: posts, error } = await supabase.from('posts').select(`
+            *, profiles:user_id (id, username, uid, avatar_url)
+        `).order('created_at', { ascending: false });
+
+        if (error) {
+            console.error('加载帖子错误:', error);
+            document.getElementById('postsContainer').innerHTML = '<div class="empty-state">加载帖子失败</div>';
+            return;
+        }
+
+        const container = document.getElementById('postsContainer');
+        container.innerHTML = '';
+
+        if (!posts || posts.length === 0) {
+            container.innerHTML = '<div class="empty-state">暂无帖子，快来发布第一条吧！</div>';
+            return;
+        }
+
+        posts.forEach(post => {
+            const isAdminPost = post.profiles.uid === SUPER_ADMIN.uid;
+            const postElement = document.createElement('div');
+            postElement.className = 'post';
+            
+            let imageHtml = '';
+            if (post.image_url) {
+                imageHtml = `<img src="${post.image_url}" class="post-image" alt="帖子图片">`;
+            }
+            
+            postElement.innerHTML = `
+                <div class="post-header">
+                    <div><strong>${post.profiles.username}</strong>${isAdminPost ? ' <span class="admin-badge">管理员</span>' : ''}</div>
+                    <div style="color: #666; font-size: 14px;">${new Date(post.created_at).toLocaleString()}</div>
+                </div>
+                <div style="margin: 15px 0; line-height: 1.6;">${post.content}</div>
+                ${imageHtml}
+                <div class="post-actions">
+                    <button class="action-btn" onclick="addFriend('${post.profiles.id}')">
+                        <span style="margin-right: 5px;">👥</span>加好友
+                    </button>
+                    <button class="action-btn" onclick="startChat('${post.profiles.id}')">
+                        <span style="margin-right: 5px;">💬</span>私信
+                    </button>
+                    ${isSuperAdmin || isSubAdmin ? `
+                    <button class="action-btn" onclick="deletePost('${post.id}')" style="color: red; border-color: red;">
+                        <span style="margin-right: 5px;">🗑️</span>删除
+                    </button>` : ''}
+                </div>
+            `;
+            container.appendChild(postElement);
+        });
+    } catch (error) {
+        console.error('加载帖子异常:', error);
+        document.getElementById('postsContainer').innerHTML = '<div class="empty-state">加载帖子失败</div>';
+    }
+}async function loadFriends() {
+    if (!supabase || !currentUser) return;
+
+    try {
+        const { data: friends, error } = await supabase.from('friendships').select(`
+            *, friend:friend_id (id, username, uid)
+        `).eq('user_id', currentUser.id).eq('status', 'accepted');
+
+        if (error) {
+            console.error('加载好友错误:', error);
+            document.getElementById('friendsContainer').innerHTML = '<div class="empty-state">加载好友列表失败</div>';
+            return;
+        }
+
+        const container = document.getElementById('friendsContainer');
+        container.innerHTML = '';
+
+        if (!friends || friends.length === 0) {
+            container.innerHTML = '<div class="empty-state">暂无好友，快去添加一些朋友吧！</div>';
+            return;
+        }
+
+        friends.forEach(friendship => {
+            const friendElement = document.createElement('div');
+            friendElement.className = 'friend-item';
+            friendElement.innerHTML = `
+                <div class="friend-header">
+                    <div><strong>${friendship.friend.username}</strong> (UID: ${friendship.friend.uid})</div>
+                </div>
+                <div class="friend-actions">
+                    <button class="action-btn" onclick="startChat('${friendship.friend.id}')">
+                        <span style="margin-right: 5px;">💬</span>发消息
+                    </button>
+                    <button class="action-btn" onclick="removeFriend('${friendship.friend.id}')" style="color: red; border-color: red;">
+                        <span style="margin-right: 5px;">❌</span>删除
+                    </button>
+                </div>
+            `;
+            container.appendChild(friendElement);
+        });
+    } catch (error) {
+        console.error('加载好友异常:', error);
+        document.getElementById('friendsContainer').innerHTML = '<div class="empty-state">加载好友列表失败</div>';
+    }
+}
+
+async function loadMessageThreads() {
+    if (!supabase || !currentUser) return;
+
+    try {
+        const { data: messages, error } = await supabase.from('private_messages').select(`
+            *, sender:sender_id (id, username), receiver:receiver_id (id, username)
+        `).or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`).order('created_at', { ascending: false });
+
+        if (error) {
+            console.error('加载消息错误:', error);
+            document.getElementById('messagesContainer').innerHTML = '<div class="empty-state">加载消息失败</div>';
+            return;
+        }
+
+        const container = document.getElementById('messagesContainer');
+        container.innerHTML = '';
+
+        const threads = {};
+        messages?.forEach(message => {
+            const otherUserId = message.sender_id === currentUser.id ? message.receiver_id : message.sender_id;
+            const otherUser = message.sender_id === currentUser.id ? message.receiver : message.sender;
+            if (!threads[otherUserId]) threads[otherUserId] = { user: otherUser, lastMessage: message };
+        });
+
+        if (Object.keys(threads).length === 0) {
+            container.innerHTML = '<div class="empty-state">暂无消息</div>';
+            return;
+        }
+
+        Object.values(threads).forEach(thread => {
+            const threadElement = document.createElement('div');
+            threadElement.className = 'message-thread';
+            threadElement.innerHTML = `
+                <div class="message-header">
+                    <div><strong>${thread.user.username}</strong></div>
+                    <div style="color: #666; font-size: 14px;">${new Date(thread.lastMessage.created_at).toLocaleString()}</div>
+                </div>
+                <div style="margin: 10px 0; color: #555;">${thread.lastMessage.content.substring(0, 50)}${thread.lastMessage.content.length > 50 ? '...' : ''}</div>
+                <div class="friend-actions">
+                    <button class="action-btn" onclick="startChat('${thread.user.id}')">
+                        <span style="margin-right: 5px;">💬</span>查看对话
+                    </button>
+                </div>
+            `;
+            container.appendChild(threadElement);
+        });
+    } catch (error) {
+        console.error('加载消息异常:', error);
+        document.getElementById('messagesContainer').innerHTML = '<div class="empty-state">加载消息失败</div>';
+    }
+}
+
+async function searchUsers() {
+    if (!supabase) return;
+
+    const searchTerm = document.getElementById('searchUser').value;
+    const messageElement = document.getElementById('searchMessage');
+    
+    messageElement.textContent = '';
+    if (!searchTerm) {
+        messageElement.textContent = '请输入搜索内容';
+        return;
+    }
+
+    try {
+        const { data: users, error } = await supabase.from('profiles').select('*')
+            .or(`username.ilike.%${searchTerm}%,uid.ilike.%${searchTerm}%`).neq('id', currentUser.id);
+
+        if (error) {
+            messageElement.textContent = '搜索失败: ' + error.message;
+            return;
+        }
+
+        const results = document.getElementById('searchResults');
+        results.innerHTML = '';
+
+        if (!users || users.length === 0) {
+            results.innerHTML = '<div class="empty-state">未找到用户</div>';
+            return;
+        }
+
+        users.forEach(user => {
+            const userElement = document.createElement('div');
+            userElement.className = 'friend-item';
+            userElement.innerHTML = `
+                <div><strong>${user.username}</strong> (UID: ${user.uid})</div>
+                <div class="friend-actions">
+                    <button class="action-btn" onclick="sendFriendRequest('${user.id}')">
+                        <span style="margin-right: 5px;">👥</span>加好友
+                    </button>
+                    <button class="action-btn" onclick="startChat('${user.id}')">
+                        <span style="margin-right: 5px;">💬</span>发消息
+                    </button>
+                </div>
+            `;
+            results.appendChild(userElement);
+        });
+    } catch (error) {
+        console.error('搜索用户失败:', error);
+        document.getElementById('searchMessage').textContent = '搜索失败: ' + error.message;
+    }
+}
+
+async function sendFriendRequest(friendId) {
+    if (!supabase || !currentUser) return;
+
+    try {
+        // 检查是否已经是好友或已有待处理请求
+        const { data: existing } = await supabase.from('friendships')
+            .select('*')
+            .or(`and(user_id.eq.${currentUser.id},friend_id.eq.${friendId}),and(user_id.eq.${friendId},friend_id.eq.${currentUser.id})`)
+            .maybeSingle();
+
+        if (existing) {
+            if (existing.status === 'accepted') {
+                alert('你们已经是好友了！');
+            } else if (existing.status === 'pending') {
+                alert('好友请求已发送，等待对方确认');
+            }
+            return;
+        }
+
+        const { error } = await supabase.from('friendships').insert([{
+            user_id: currentUser.id, 
+            friend_id: friendId, 
+            status: 'pending',
+            created_at: new Date().toISOString()
+        }]);
+        
+        if (error) {
+            alert('发送失败: ' + error.message);
+        } else {
+            alert('好友请求已发送！');
+        }
+    } catch (error) {
+        alert('发送好友请求失败: ' + error.message);
+    }
+}
+
+async function checkFriendRequests() {
+    if (!supabase || !currentUser) return;
+    
+    try {
+        const { data: requests, error } = await supabase.from('friendships')
+            .select('*, sender:user_id (id, username, uid)')
+            .eq('friend_id', currentUser.id)
+            .eq('status', 'pending');
+        
+        if (error) {
+            console.error('检查好友请求失败:', error);
+            return;
+        }
+        
+        const count = requests?.length || 0;
+        const badge = document.getElementById('friendRequestCount');
+        
+        if (count > 0) {
+            badge.textContent = count;
+            badge.style.display = 'inline-block';
+        } else {
+            badge.style.display = 'none';
+        }
+    } catch (error) {
+        console.error('检查好友请求异常:', error);
+    }
+}
+
+async function showFriendRequests() {
+    if (!supabase || !currentUser) return;
+    
+    try {
+        const { data: requests, error } = await supabase.from('friendships')
+            .select('*, sender:user_id (id, username, uid)')
+            .eq('friend_id', currentUser.id)
+            .eq('status', 'pending');
+        
+        if (error) {
+            console.error('获取好友请求失败:', error);
+            return;
+        }
+        
+        const container = document.getElementById('friendRequestsList');
+        container.innerHTML = '';
+        
+        if (!requests || requests.length === 0) {
+            container.innerHTML = '<div class="empty-state">暂无好友请求</div>';
+        } else {
+            requests.forEach(request => {
+                const requestElement = document.createElement('div');
+                requestElement.className = 'friend-request-item';
+                requestElement.innerHTML = `
+                    <div>
+                        <strong>${request.sender.username}</strong> (UID: ${request.sender.uid})
+                        <div style="font-size: 12px; color: #666;">${new Date(request.created_at).toLocaleString()}</div>
+                    </div>
+                    <div class="friend-request-actions">
+                        <button class="action-btn" onclick="handleFriendRequest('${request.id}', 'accepted')" style="background: #27ae60; color: white; border: none;">
+                            同意
+                        </button>
+                        <button class="action-btn" onclick="handleFriendRequest('${request.id}', 'rejected')" style="background: #e74c3c; color: white; border: none;">
+                            拒绝
+                        </button>
+                    </div>
+                `;
+                container.appendChild(requestElement);
+            });
+        }
+        
+        document.getElementById('friendRequestModal').style.display = 'block';
+    } catch (error) {
+        console.error('显示好友请求异常:', error);
+    }
+}
+
+async function handleFriendRequest(requestId, status) {
+    if (!supabase || !currentUser) return;
+    
+    try {
+        const { error } = await supabase.from('friendships')
+            .update({ status: status })
+            .eq('id', requestId);
+        
+        if (error) {
+            alert('处理请求失败: ' + error.message);
+        } else {
+            // 如果是同意请求，还需要创建反向的好友关系
+            if (status === 'accepted') {
+                const { data: request } = await supabase.from('friendships')
+                    .select('user_id, friend_id')
+                    .eq('id', requestId)
+                    .single();
                 
-            } catch (error) {
-                messageElement.textContent = '登录失败: ' + error.message;
-                console.error('登录错误:', error);
-            }
-        }
-
-        async function register() {
-            if (!supabase) {
-                document.getElementById('registerMessage').textContent = '系统未初始化，请刷新页面';
-                return;
-            }
-
-            const username = document.getElementById('regUsername').value;
-            const uid = document.getElementById('regUid').value;
-            const password = document.getElementById('regPassword').value;
-            const confirmPassword = document.getElementById('regConfirmPassword').value;
-            const messageElement = document.getElementById('registerMessage');
-            
-            messageElement.textContent = '';
-            if (!username || !uid || !password) {
-                messageElement.textContent = '请填写所有字段';
-                return;
-            }
-            
-            if (password !== confirmPassword) {
-                messageElement.textContent = '两次输入的密码不一致';
-                return;
-            }
-
-            try {
-                const { data: existingUser } = await supabase
-                    .from('profiles')
-                    .select('username')
-                    .eq('username', username)
-                    .maybeSingle();
-                    
-                if (existingUser) {
-                    messageElement.textContent = '用户名已存在';
-                    return;
-                }
-
-                const { data: existingUid } = await supabase
-                    .from('profiles')
-                    .select('uid')
-                    .eq('uid', uid)
-                    .maybeSingle();
-                    
-                if (existingUid) {
-                    messageElement.textContent = 'UID已存在';
-                    return;
-                }
-
-                const { error } = await supabase.from('profiles').insert([{
-                    username: username,
-                    uid: uid,
-                    password: password,
-                    created_at: new Date().toISOString()
-                }]);
-
-                if (error) {
-                    messageElement.textContent = '注册失败: ' + error.message;
-                    console.error('注册错误:', error);
-                } else {
-                    messageElement.textContent = '注册成功！请登录';
-                    messageElement.className = 'success-message';
-                    setTimeout(() => closeModal('registerModal'), 2000);
-                }
-            } catch (error) {
-                messageElement.textContent = '注册失败: ' + error.message;
-                console.error('注册异常:', error);
-            }
-        }
-
-        async function createPost() {
-            if (!supabase || !currentUser) return;
-
-            const content = document.getElementById('postContent').value;
-            const messageElement = document.getElementById('postMessage');
-            
-            messageElement.textContent = '';
-            if (!content) {
-                messageElement.textContent = '请输入内容';
-                return;
-            }
-
-            try {
-                const { error } = await supabase.from('posts').insert([{
-                    user_id: currentUser.id,
-                    content: content,
-                    created_at: new Date().toISOString()
-                }]);
-
-                if (error) {
-                    messageElement.textContent = '发布失败: ' + error.message;
-                    console.error('发布错误:', error);
-                } else {
-                    document.getElementById('postContent').value = '';
-                    loadPosts();
-                }
-            } catch (error) {
-                messageElement.textContent = '发布失败: ' + error.message;
-                console.error('发布异常:', error);
-            }
-        }
-
-        async function loadPosts() {
-            if (!supabase) return;
-
-            try {
-                const { data: posts, error } = await supabase.from('posts').select(`
-                    *, profiles:user_id (id, username, uid, avatar_url)
-                `).order('created_at', { ascending: false });
-
-                if (error) {
-                    console.error('加载帖子错误:', error);
-                    document.getElementById('postsContainer').innerHTML = '<div class="empty-state">加载帖子失败</div>';
-                    return;
-                }
-
-                const container = document.getElementById('postsContainer');
-                container.innerHTML = '';
-
-                if (!posts || posts.length === 0) {
-                    container.innerHTML = '<div class="empty-state">暂无帖子，快来发布第一条吧！</div>';
-                    return;
-                }
-
-                posts.forEach(post => {
-                    const isAdminPost = post.profiles.uid === SUPER_ADMIN.uid;
-                    const postElement = document.createElement('div');
-                    postElement.className = 'post';
-                    postElement.innerHTML = `
-                        <div class="post-header">
-                            <div><strong>${post.profiles.username}</strong>${isAdminPost ? ' <span class="admin-badge">管理员</span>' : ''}</div>
-                            <div style="color: #666; font-size: 14px;">${new Date(post.created_at).toLocaleString()}</div>
-                        </div>
-                        <div style="margin: 15px 0; line-height: 1.6;">${post.content}</div>
-                        <div class="post-actions">
-                            <button class="action-btn" onclick="addFriend('${post.profiles.id}')">
-                                <span style="margin-right: 5px;">👥</span>加好友
-                            </button>
-                            <button class="action-btn" onclick="startChat('${post.profiles.id}')">
-                                <span style="margin-right: 5px;">💬</span>私信
-                            </button>
-                            ${isSuperAdmin ? `
-                            <button class="action-btn" onclick="deletePost('${post.id}')" style="color: red; border-color: red;">
-                                <span style="margin-right: 5px;">🗑️</span>删除
-                            </button>` : ''}
-                        </div>
-                    `;
-                    container.appendChild(postElement);
-                });
-            } catch (error) {
-                console.error('加载帖子异常:', error);
-                document.getElementById('postsContainer').innerHTML = '<div class="empty-state">加载帖子失败</div>';
-            }
-        }
-
-        async function loadFriends() {
-            if (!supabase || !currentUser) return;
-
-            try {
-                const { data: friends, error } = await supabase.from('friendships').select(`
-                    *, friend:friend_id (id, username, uid)
-                `).eq('user_id', currentUser.id).eq('status', 'accepted');
-
-                if (error) {
-                    console.error('加载好友错误:', error);
-                    document.getElementById('friendsContainer').innerHTML = '<div class="empty-state">加载好友列表失败</div>';
-                    return;
-                }
-
-                const container = document.getElementById('friendsContainer');
-                container.innerHTML = '';
-
-                if (!friends || friends.length === 0) {
-                    container.innerHTML = '<div class="empty-state">暂无好友，快去添加一些朋友吧！</div>';
-                    return;
-                }
-
-                friends.forEach(friendship => {
-                    const friendElement = document.createElement('div');
-                    friendElement.className = 'friend-item';
-                    friendElement.innerHTML = `
-                        <div class="friend-header">
-                            <div><strong>${friendship.friend.username}</strong> (UID: ${friendship.friend.uid})</div>
-                        </div>
-                        <div class="friend-actions">
-                            <button class="action-btn" onclick="startChat('${friendship.friend.id}')">
-                                <span style="margin-right: 5px;">💬</span>发消息
-                            </button>
-                            <button class="action-btn" onclick="removeFriend('${friendship.friend.id}')" style="color: red; border-color: red;">
-                                <span style="margin-right: 5px;">❌</span>删除
-                            </button>
-                        </div>
-                    `;
-                    container.appendChild(friendElement);
-                });
-            } catch (error) {
-                console.error('加载好友异常:', error);
-                document.getElementById('friendsContainer').innerHTML = '<div class="empty-state">加载好友列表失败</div>';
-            }
-        }
-
-        async function loadMessageThreads() {
-            if (!supabase || !currentUser) return;
-
-            try {
-                const { data: messages, error } = await supabase.from('private_messages').select(`
-                    *, sender:sender_id (id, username), receiver:receiver_id (id, username)
-                `).or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`).order('created_at', { ascending: false });
-
-                if (error) {
-                    console.error('加载消息错误:', error);
-                    document.getElementById('messagesContainer').innerHTML = '<div class="empty-state">加载消息失败</div>';
-                    return;
-                }
-
-                const container = document.getElementById('messagesContainer');
-                container.innerHTML = '';
-
-                const threads = {};
-                messages?.forEach(message => {
-                    const otherUserId = message.sender_id === currentUser.id ? message.receiver_id : message.sender_id;
-                    const otherUser = message.sender_id === currentUser.id ? message.receiver : message.sender;
-                    if (!threads[otherUserId]) threads[otherUserId] = { user: otherUser, lastMessage: message };
-                });
-
-                if (Object.keys(threads).length === 0) {
-                    container.innerHTML = '<div class="empty-state">暂无消息</div>';
-                    return;
-                }
-
-                Object.values(threads).forEach(thread => {
-                    const threadElement = document.createElement('div');
-                    threadElement.className = 'message-thread';
-                    threadElement.innerHTML = `
-                        <div class="message-header">
-                            <div><strong>${thread.user.username}</strong></div>
-                            <div style="color: #666; font-size: 14px;">${new Date(thread.lastMessage.created_at).toLocaleString()}</div>
-                        </div>
-                        <div style="margin: 10px 0; color: #555;">${thread.lastMessage.content.substring(0, 50)}${thread.lastMessage.content.length > 50 ? '...' : ''}</div>
-                        <div class="friend-actions">
-                            <button class="action-btn" onclick="startChat('${thread.user.id}')">
-                                <span style="margin-right: 5px;">💬</span>查看对话
-                            </button>
-                        </div>
-                    `;
-                    container.appendChild(threadElement);
-                });
-            } catch (error) {
-                console.error('加载消息异常:', error);
-                document.getElementById('messagesContainer').innerHTML = '<div class="empty-state">加载消息失败</div>';
-            }
-        }
-
-        async function searchUsers() {
-            if (!supabase) return;
-
-            const searchTerm = document.getElementById('searchUser').value;
-            const messageElement = document.getElementById('searchMessage');
-            
-            messageElement.textContent = '';
-            if (!searchTerm) {
-                messageElement.textContent = '请输入搜索内容';
-                return;
-            }
-
-            try {
-                const { data: users, error } = await supabase.from('profiles').select('*')
-                    .or(`username.ilike.%${searchTerm}%,uid.ilike.%${searchTerm}%`).neq('id', currentUser.id);
-
-                if (error) {
-                    messageElement.textContent = '搜索失败: ' + error.message;
-                    return;
-                }
-
-                const results = document.getElementById('searchResults');
-                results.innerHTML = '';
-
-                if (!users || users.length === 0) {
-                    results.innerHTML = '<div class="empty-state">未找到用户</div>';
-                    return;
-                }
-
-                users.forEach(user => {
-                    const userElement = document.createElement('div');
-                    userElement.className = 'friend-item';
-                    userElement.innerHTML = `
-                        <div><strong>${user.username}</strong> (UID: ${user.uid})</div>
-                        <div class="friend-actions">
-                            <button class="action-btn" onclick="sendFriendRequest('${user.id}')">
-                                <span style="margin-right: 5px;">👥</span>加好友
-                            </button>
-                            <button class="action-btn" onclick="startChat('${user.id}')">
-                                <span style="margin-right: 5px;">💬</span>发消息
-                            </button>
-                        </div>
-                    `;
-                    results.appendChild(userElement);
-                });
-            } catch (error) {
-                console.error('搜索用户失败:', error);
-                document.getElementById('searchMessage').textContent = '搜索失败: ' + error.message;
-            }
-        }
-
-        async function sendFriendRequest(friendId) {
-            if (!supabase || !currentUser) return;
-
-            try {
-                const { error } = await supabase.from('friendships').insert([{
-                    user_id: currentUser.id, friend_id: friendId, status: 'pending'
-                }]);
-                alert(error ? '发送失败: ' + error.message : '好友请求已发送');
-            } catch (error) {
-                alert('发送好友请求失败: ' + error.message);
-            }
-        }
-
-        async function removeFriend(friendId) {
-            if (!supabase || !currentUser) return;
-            if (!confirm('确定要删除好友吗？')) return;
-
-            try {
-                const { error } = await supabase.from('friendships').delete()
-                    .eq('user_id', currentUser.id).eq('friend_id', friendId);
-                if (error) throw error;
-                loadFriends();
-            } catch (error) {
-                alert('删除好友失败: ' + error.message);
-            }
-        }
-
-        async function addFriend(userId) {
-            if (!supabase || !currentUser) return;
-            
-            try {
-                // 首先获取用户信息
-                const { data: user, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
-                if (error) {
-                    alert('获取用户信息失败: ' + error.message);
-                    return;
-                }
-                
-                if (confirm(`确定要添加 ${user.username} 为好友吗？`)) {
-                    const { error: requestError } = await supabase.from('friendships').insert([{
-                        user_id: currentUser.id, friend_id: userId, status: 'pending'
+                if (request) {
+                    await supabase.from('friendships').insert([{
+                        user_id: request.friend_id,
+                        friend_id: request.user_id,
+                        status: 'accepted',
+                        created_at: new Date().toISOString()
                     }]);
-                    
-                    if (requestError) {
-                        alert('发送好友请求失败: ' + requestError.message);
-                    } else {
-                        alert('好友请求已发送！');
-                    }
                 }
-            } catch (error) {
-                alert('添加好友失败: ' + error.message);
             }
-        }
-
-        async function startChat(userId) {
-            if (!supabase || !currentUser) return;
-
-            try {
-                const { data: user, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
-                if (error) {
-                    alert('获取用户信息失败: ' + error.message);
-                    return;
-                }
-                
-                currentChatUser = user;
-                document.getElementById('messageUserName').textContent = `与 ${user.username} 对话`;
-                document.getElementById('messageModal').style.display = 'block';
-                loadMessages(userId);
-            } catch (error) {
-                alert('开始聊天失败: ' + error.message);
-            }
-        }
-
-        async function loadMessages(userId) {
-            if (!supabase || !currentUser) return;
-
-            try {
-                const { data: messages, error } = await supabase.from('private_messages').select('*')
-                    .or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${userId}),and(sender_id.eq.${userId},receiver_id.eq.${currentUser.id})`)
-                    .order('created_at', { ascending: true });
-
-                if (error) throw error;
-
-                const container = document.getElementById('messageContent');
-                container.innerHTML = '';
-
-                if (!messages || messages.length === 0) {
-                    container.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">暂无消息，开始对话吧！</div>';
-                    return;
-                }
-
-                messages.forEach(message => {
-                    const messageElement = document.createElement('div');
-                    messageElement.style.margin = '10px 0';
-                    messageElement.innerHTML = `
-                        <div style="display: flex; justify-content: ${message.sender_id === currentUser.id ? 'flex-end' : 'flex-start'};">
-                            <div style="max-width: 70%; background: ${message.sender_id === currentUser.id ? '#3498db' : '#ecf0f1'}; 
-                                 color: ${message.sender_id === currentUser.id ? 'white' : 'black'}; 
-                                 padding: 12px; border-radius: 12px; word-wrap: break-word;">
-                                ${message.content}
-                            </div>
-                        </div>
-                        <div style="text-align: ${message.sender_id === currentUser.id ? 'right' : 'left'}; 
-                             color: #666; font-size: 12px; margin-top: 5px;">
-                            ${new Date(message.created_at).toLocaleTimeString()}
-                        </div>
-                    `;
-                    container.appendChild(messageElement);
-                });
-                container.scrollTop = container.scrollHeight;
-            } catch (error) {
-                console.error('加载消息失败:', error);
-                document.getElementById('messageContent').innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">加载消息失败</div>';
-            }
-        }
-
-        async function sendMessage() {
-            if (!supabase || !currentUser || !currentChatUser) return;
-
-            const content = document.getElementById('messageText').value;
-            const messageElement = document.getElementById('messageSendMessage');
             
-            messageElement.textContent = '';
-            if (!content) {
-                messageElement.textContent = '请输入消息内容';
-                return;
-            }
+            alert(`好友请求已${status === 'accepted' ? '接受' : '拒绝'}`);
+            showFriendRequests(); // 刷新列表
+            checkFriendRequests(); // 更新计数
+        }
+    } catch (error) {
+        alert('处理请求失败: ' + error.message);
+    }
+}
 
-            try {
-                const { error } = await supabase.from('private_messages').insert([{
-                    sender_id: currentUser.id,
-                    receiver_id: currentChatUser.id,
-                    content: content,
-                    created_at: new Date().toISOString()
-                }]);
+async function removeFriend(friendId) {
+    if (!supabase || !currentUser) return;
+    if (!confirm('确定要删除好友吗？')) return;
 
-                if (error) {
-                    messageElement.textContent = '发送失败: ' + error.message;
-                } else {
-                    document.getElementById('messageText').value = '';
-                    loadMessages(currentChatUser.id);
-                }
-            } catch (error) {
-                messageElement.textContent = '发送失败: ' + error.message;
+    try {
+        // 删除双向的好友关系
+        const { error } = await supabase.from('friendships').delete()
+            .or(`and(user_id.eq.${currentUser.id},friend_id.eq.${friendId}),and(user_id.eq.${friendId},friend_id.eq.${currentUser.id})`);
+        
+        if (error) throw error;
+        loadFriends();
+    } catch (error) {
+        alert('删除好友失败: ' + error.message);
+    }
+}
+
+async function addFriend(userId) {
+    if (!supabase || !currentUser) return;
+    
+    try {
+        // 首先获取用户信息
+        const { data: user, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
+        if (error) {
+            alert('获取用户信息失败: ' + error.message);
+            return;
+        }
+        
+        if (confirm(`确定要添加 ${user.username} 为好友吗？`)) {
+            const { error: requestError } = await supabase.from('friendships').insert([{
+                user_id: currentUser.id, 
+                friend_id: userId, 
+                status: 'pending',
+                created_at: new Date().toISOString()
+            }]);
+            
+            if (requestError) {
+                alert('发送好友请求失败: ' + requestError.message);
+            } else {
+                alert('好友请求已发送！');
             }
         }
+    } catch (error) {
+        alert('添加好友失败: ' + error.message);
+    }
+}
 
-        async function deletePost(postId) {
-            if (!supabase || !isSuperAdmin) return;
+async function startChat(userId) {
+    if (!supabase || !currentUser) return;
+
+    try {
+        const { data: user, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
+        if (error) {
+            alert('获取用户信息失败: ' + error.message);
+            return;
+        }
+        
+        currentChatUser = user;
+        document.getElementById('messageUserName').textContent = `与 ${user.username} 对话`;
+        document.getElementById('messageModal').style.display = 'block';
+        loadMessages(userId);
+    } catch (error) {
+        alert('开始聊天失败: ' + error.message);
+    }
+}
+
+async function loadMessages(userId) {
+    if (!supabase || !currentUser) return;
+
+    try {
+        const { data: messages, error } = await supabase.from('private_messages').select('*')
+            .or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${userId}),and(sender_id.eq.${userId},receiver_id.eq.${currentUser.id})`)
+            .order('created_at', { ascending: true });
+
+        if (error) throw error;
+
+        const container = document.getElementById('messageContent');
+        container.innerHTML = '';
+
+        if (!messages || messages.length === 0) {
+            container.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">暂无消息，开始对话吧！</div>';
+            return;
+        }
+
+        messages.forEach(message => {
+            const messageElement = document.createElement('div');
+            messageElement.style.margin = '10px 0';
+            messageElement.innerHTML = `
+                <div style="display: flex; justify-content: ${message.sender_id === currentUser.id ? 'flex-end' : 'flex-start'};">
+                    <div style="max-width: 70%; background: ${message.sender_id === currentUser.id ? '#3498db' : '#ecf0f1'}; 
+                         color: ${message.sender_id === currentUser.id ? 'white' : 'black'}; 
+                         padding: 12px; border-radius: 12px; word-wrap: break-word;">
+                        ${message.content}
+                    </div>
+                </div>
+                <div style="text-align: ${message.sender_id === currentUser.id ? 'right' : 'left'}; 
+                     color: #666; font-size: 12px; margin-top: 5px;">
+                    ${new Date(message.created_at).toLocaleTimeString()}
+                </div>
+            `;
+            container.appendChild(messageElement);
+        });
+        container.scrollTop = container.scrollHeight;
+    } catch (error) {
+        console.error('加载消息失败:', error);
+        document.getElementById('messageContent').innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">加载消息失败</div>';
+    }
+}
+
+async function sendMessage() {
+    if (!supabase || !currentUser || !currentChatUser) return;
+
+    const content = document.getElementById('messageText').value;
+    const messageElement = document.getElementById('messageSendMessage');
+    
+    messageElement.textContent = '';
+    if (!content) {
+        messageElement.textContent = '请输入消息内容';
+        return;
+    }
+
+    try {
+        const { error } = await supabase.from('private_messages').insert([{
+            sender_id: currentUser.id,
+            receiver_id: currentChatUser.id,
+            content: content,
+            created_at: new Date().toISOString()
+        }]);
+
+        if (error) {
+            messageElement.textContent = '发送失败: ' + error.message;
+        } else {
+            document.getElementById('messageText').value = '';
+            loadMessages(currentChatUser.id);
+        }
+    } catch (error) {
+        messageElement.textContent = '发送失败: ' + error.message;
+    }
+}        async function deletePost(postId) {
+            if (!supabase || (!isSuperAdmin && !isSubAdmin)) return;
             if (!confirm('确定要删除这个帖子吗？')) return;
 
             try {
@@ -983,6 +1411,68 @@
                 loadPosts();
             } catch (error) {
                 alert('删除帖子失败: ' + error.message);
+            }
+        }
+
+        async function deletePostAsSubAdmin() {
+            if (!supabase || !isSubAdmin) return;
+            
+            const postId = document.getElementById('subAdminDeletePostId').value;
+            const messageElement = document.getElementById('subAdminMessage');
+            
+            messageElement.textContent = '';
+            if (!postId) {
+                messageElement.textContent = '请输入帖子ID';
+                return;
+            }
+
+            try {
+                const { error } = await supabase.from('posts').delete().eq('id', postId);
+                if (error) throw error;
+                messageElement.textContent = '帖子删除成功';
+                messageElement.className = 'success-message';
+                document.getElementById('subAdminDeletePostId').value = '';
+            } catch (error) {
+                messageElement.textContent = '删除帖子失败: ' + error.message;
+            }
+        }
+
+        async function warnUser() {
+            if (!supabase || !isSubAdmin) return;
+            
+            const userId = document.getElementById('subAdminWarnUserId').value;
+            const messageElement = document.getElementById('subAdminMessage');
+            
+            messageElement.textContent = '';
+            if (!userId) {
+                messageElement.textContent = '请输入用户ID';
+                return;
+            }
+
+            try {
+                // 获取用户信息
+                const { data: user } = await supabase.from('profiles').select('username').eq('id', userId).single();
+                
+                if (!user) {
+                    messageElement.textContent = '用户不存在';
+                    return;
+                }
+                
+                // 发送警告消息
+                const { error } = await supabase.from('private_messages').insert([{
+                    sender_id: currentUser.id,
+                    receiver_id: userId,
+                    content: `【系统警告】您好，您的行为已违反社区规定，请遵守社区规则。`,
+                    created_at: new Date().toISOString()
+                }]);
+                
+                if (error) throw error;
+                
+                messageElement.textContent = `已向用户 ${user.username} 发送警告`;
+                messageElement.className = 'success-message';
+                document.getElementById('subAdminWarnUserId').value = '';
+            } catch (error) {
+                messageElement.textContent = '发送警告失败: ' + error.message;
             }
         }
 
@@ -1009,13 +1499,65 @@
             }
         }
 
+        async function assignSubAdmin() {
+            if (!supabase || !isSuperAdmin) return;
+
+            const userId = document.getElementById('assignSubAdminId').value;
+            const messageElement = document.getElementById('adminMessage');
+            
+            messageElement.textContent = '';
+            if (!userId) {
+                messageElement.textContent = '请输入用户ID';
+                return;
+            }
+
+            try {
+                const { error } = await supabase.from('profiles').update({ is_sub_admin: true }).eq('id', userId);
+                if (error) throw error;
+                messageElement.textContent = `用户 ${userId} 已被设为小管理员`;
+                messageElement.className = 'success-message';
+                document.getElementById('assignSubAdminId').value = '';
+            } catch (error) {
+                messageElement.textContent = '设置小管理员失败: ' + error.message;
+            }
+        }
+
+        async function removeSubAdmin() {
+            if (!supabase || !isSuperAdmin) return;
+
+            const userId = document.getElementById('removeSubAdminId').value;
+            const messageElement = document.getElementById('adminMessage');
+            
+            messageElement.textContent = '';
+            if (!userId) {
+                messageElement.textContent = '请输入用户ID';
+                return;
+            }
+
+            try {
+                const { error } = await supabase.from('profiles').update({ is_sub_admin: false }).eq('id', userId);
+                if (error) throw error;
+                messageElement.textContent = `用户 ${userId} 的小管理员权限已被移除`;
+                messageElement.className = 'success-message';
+                document.getElementById('removeSubAdminId').value = '';
+            } catch (error) {
+                messageElement.textContent = '移除小管理员失败: ' + error.message;
+            }
+        }
+
         function logout() {
             currentUser = null;
+            currentUserProfile = null;
+            isSuperAdmin = false;
+            isSubAdmin = false;
             document.getElementById('mainContent').classList.remove('logged-in');
             document.getElementById('authSection').style.display = 'block';
             hideAllTabs();
             document.getElementById('loginIdentifier').value = '';
             document.getElementById('loginPassword').value = '';
+            
+            // 清除保持登录cookie
+            document.cookie = "keepLogin=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         }
 
         // ==================== 页面初始化 ====================
