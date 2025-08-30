@@ -176,38 +176,73 @@
             font-size: 16px;
         }
         
-        /* 新添加的样式 */
+        /* 搜索框样式优化 */
         .search-box {
             margin-bottom: 20px;
             display: flex;
             gap: 10px;
+            align-items: center;
         }
         
-        .search-box input {
+        .search-input {
             flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            height: 46px;
         }
         
-        .friend-request-modal .modal-content {
-            max-width: 500px;
+        .search-button {
+            padding: 12px 20px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            height: 46px;
+            min-width: 80px;
+            flex-shrink: 0;
         }
         
-        .friend-requests-list {
-            max-height: 300px;
-            overflow-y: auto;
-            margin: 15px 0;
+        .search-button:hover {
+            background: #2980b9;
         }
         
-        .friend-request-item {
+        /* 用户搜索结果样式 */
+        .user-search-result {
+            background: white;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .user-search-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px;
-            border-bottom: 1px solid #eee;
+            margin-bottom: 15px;
         }
         
-        .friend-request-actions {
+        .user-search-info {
+            flex: 1;
+        }
+        
+        .user-search-actions {
             display: flex;
-            gap: 8px;
+            gap: 10px;
+        }
+        
+        .search-section-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 20px 0 15px 0;
+            color: #2c3e50;
+            border-left: 4px solid #3498db;
+            padding-left: 10px;
         }
         
         /* 响应式设计 */
@@ -225,6 +260,12 @@
             }
             .admin-actions {
                 grid-template-columns: 1fr;
+            }
+            .search-box {
+                flex-direction: column;
+            }
+            .search-button {
+                width: 100%;
             }
         }
     </style>
@@ -278,8 +319,8 @@
                 <!-- 帖子广场 -->
                 <div class="tab-content active" id="postsTab">
                     <div class="search-box">
-                        <input type="text" id="postSearch" placeholder="搜索帖子关键词...">
-                        <button id="searchPostsBtn">搜索</button>
+                        <input type="text" id="postSearch" placeholder="搜索帖子关键词..." class="search-input">
+                        <button id="searchPostsBtn" class="search-button">搜索</button>
                     </div>
                     <div class="post-form">
                         <h3>发布新内容</h3>
@@ -756,6 +797,44 @@ async function searchPosts() {
     const searchTerm = document.getElementById('postSearch').value.trim();
     
     try {
+        // 首先搜索匹配的用户
+        const { data: users, error: userError } = await supabase
+            .from('profiles')
+            .select('*')
+            .or(`username.ilike.%${searchTerm}%,uid.ilike.%${searchTerm}%`)
+            .neq('id', currentUser?.id || '');
+
+        const container = document.getElementById('postsContainer');
+        container.innerHTML = '';
+
+        // 显示用户搜索结果
+        if (users && users.length > 0) {
+            container.innerHTML += '<div class="search-section-title">相关用户</div>';
+            
+            users.forEach(user => {
+                const userElement = document.createElement('div');
+                userElement.className = 'user-search-result';
+                userElement.innerHTML = `
+                    <div class="user-search-header">
+                        <div class="user-search-info">
+                            <div><strong>${user.username}</strong> (UID: ${user.uid})</div>
+                            <div style="color: #666; font-size: 14px; margin-top: 5px;">用户ID: ${user.id}</div>
+                        </div>
+                        <div class="user-search-actions">
+                            <button class="action-btn" onclick="addFriend('${user.id}')">
+                                <span style="margin-right: 5px;">👥</span>加好友
+                            </button>
+                            <button class="action-btn" onclick="startChat('${user.id}')">
+                                <span style="margin-right: 5px;">💬</span>私信
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(userElement);
+            });
+        }
+
+        // 然后搜索匹配的帖子
         let query = supabase
             .from('posts')
             .select('*, profiles:user_id (id, username, uid, avatar_url)')
@@ -765,50 +844,59 @@ async function searchPosts() {
             query = query.ilike('content', `%${searchTerm}%`);
         }
         
-        const { data: posts, error } = await query;
+        const { data: posts, error: postError } = await query;
         
-        if (error) {
-            console.error('搜索帖子错误:', error);
-            document.getElementById('postsContainer').innerHTML = '<div class="empty-state">搜索帖子失败</div>';
+        if (postError) {
+            console.error('搜索帖子错误:', postError);
+            if (users && users.length === 0) {
+                container.innerHTML = '<div class="empty-state">搜索帖子失败</div>';
+            }
             return;
         }
 
-        const container = document.getElementById('postsContainer');
-        container.innerHTML = '';
+        // 显示帖子搜索结果
+        if (posts && posts.length > 0) {
+            if (users && users.length > 0) {
+                container.innerHTML += '<div class="search-section-title">相关帖子</div>';
+            } else {
+                container.innerHTML += '<div class="search-section-title">搜索结果</div>';
+            }
 
-        if (!posts || posts.length === 0) {
-            container.innerHTML = '<div class="empty-state">暂无相关帖子</div>';
-            return;
+            posts.forEach(post => {
+                const isAdminPost = post.profiles.uid === SUPER_ADMIN.uid;
+                const postElement = document.createElement('div');
+                postElement.className = 'post';
+                postElement.innerHTML = `
+                    <div class="post-header">
+                        <div><strong>${post.profiles.username}</strong>${isAdminPost ? ' <span class="admin-badge">管理员</span>' : ''}</div>
+                        <div style="color: #666; font-size: 14px;">${new Date(post.created_at).toLocaleString()}</div>
+                    </div>
+                    <div style="margin: 15px 0; line-height: 1.6;">${post.content}</div>
+                    <div class="post-actions">
+                        <button class="action-btn" onclick="addFriend('${post.profiles.id}')">
+                            <span style="margin-right: 5px;">👥</span>加好友
+                        </button>
+                        <button class="action-btn" onclick="startChat('${post.profiles.id}')">
+                            <span style="margin-right: 5px;">💬</span>私信
+                        </button>
+                        ${isSuperAdmin ? `
+                        <button class="action-btn" onclick="deletePost('${post.id}')" style="color: red; border-color: red;">
+                            <span style="margin-right: 5px;">🗑️</span>删除
+                        </button>` : ''}
+                    </div>
+                `;
+                container.appendChild(postElement);
+            });
         }
 
-        posts.forEach(post => {
-            const isAdminPost = post.profiles.uid === SUPER_ADMIN.uid;
-            const postElement = document.createElement('div');
-            postElement.className = 'post';
-            postElement.innerHTML = `
-                <div class="post-header">
-                    <div><strong>${post.profiles.username}</strong>${isAdminPost ? ' <span class="admin-badge">管理员</span>' : ''}</div>
-                    <div style="color: #666; font-size: 14px;">${new Date(post.created_at).toLocaleString()}</div>
-                </div>
-                <div style="margin: 15px 0; line-height: 1.6;">${post.content}</div>
-                <div class="post-actions">
-                    <button class="action-btn" onclick="addFriend('${post.profiles.id}')">
-                        <span style="margin-right: 5px;">👥</span>加好友
-                    </button>
-                    <button class="action-btn" onclick="startChat('${post.profiles.id}')">
-                        <span style="margin-right: 5px;">💬</span>私信
-                    </button>
-                    ${isSuperAdmin ? `
-                    <button class="action-btn" onclick="deletePost('${post.id}')" style="color: red; border-color: red;">
-                        <span style="margin-right: 5px;">🗑️</span>删除
-                    </button>` : ''}
-                </div>
-            `;
-            container.appendChild(postElement);
-        });
+        // 如果没有搜索结果
+        if ((!users || users.length === 0) && (!posts || posts.length === 0)) {
+            container.innerHTML = '<div class="empty-state">暂无相关帖子或用户</div>';
+        }
+        
     } catch (error) {
         console.error('搜索帖子异常:', error);
-        document.getElementById('postsContainer').innerHTML = '<div class="empty-state">搜索帖子失败</div>';
+        document.getElementById('postsContainer').innerHTML = '<div class="empty-state">搜索失败</div>';
     }
 }
 
@@ -896,16 +984,33 @@ async function loadPosts() {
                             <div><strong>${friendship.friend.username}</strong> (UID: ${friendship.friend.uid})</div>
                         </div>
                         <div class="friend-actions">
-                            <button class="action-btn" onclick="startChat('${friendship.friend.id}')">
+                            <button class="action-btn" data-action="startChat" data-userid="${friendship.friend.id}">
                                 <span style="margin-right: 5px;">💬</span>发消息
                             </button>
-                            <button class="action-btn" onclick="removeFriend('${friendship.friend.id}')" style="color: red; border-color: red;">
+                            <button class="action-btn" data-action="removeFriend" data-userid="${friendship.friend.id}" style="color: red; border-color: red;">
                                 <span style="margin-right: 5px;">❌</span>删除
                             </button>
                         </div>
                     `;
                     container.appendChild(friendElement);
                 });
+
+                // 重新绑定动态生成的按钮事件
+                setTimeout(() => {
+                    document.querySelectorAll('[data-action="startChat"]').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const userId = e.target.closest('button').getAttribute('data-userid');
+                            startChat(userId);
+                        });
+                    });
+                    document.querySelectorAll('[data-action="removeFriend"]').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const userId = e.target.closest('button').getAttribute('data-userid');
+                            removeFriend(userId);
+                        });
+                    });
+                }, 100);
+
             } catch (error) {
                 console.error('加载好友异常:', error);
                 document.getElementById('friendsContainer').innerHTML = '<div class="empty-state">加载好友列表失败</div>';
@@ -971,10 +1076,10 @@ async function loadPosts() {
                                 <div style="font-size: 12px; color: #666;">${new Date(request.created_at).toLocaleString()}</div>
                             </div>
                             <div class="friend-request-actions">
-                                <button class="action-btn" onclick="handleFriendRequest('${request.id}', 'accepted')" style="background: #27ae60; color: white; border: none;">
+                                <button class="action-btn" data-action="acceptRequest" data-requestid="${request.id}" style="background: #27ae60; color: white; border: none;">
                                     同意
                                 </button>
-                                <button class="action-btn" onclick="handleFriendRequest('${request.id}', 'rejected')" style="background: #e74c3c; color: white; border: none;">
+                                <button class="action-btn" data-action="rejectRequest" data-requestid="${request.id}" style="background: #e74c3c; color: white; border: none;">
                                     拒绝
                                 </button>
                             </div>
@@ -982,6 +1087,22 @@ async function loadPosts() {
                         container.appendChild(requestElement);
                     });
                 }
+                
+                // 重新绑定好友请求按钮事件
+                setTimeout(() => {
+                    document.querySelectorAll('[data-action="acceptRequest"]').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const requestId = e.target.closest('button').getAttribute('data-requestid');
+                            handleFriendRequest(requestId, 'accepted');
+                        });
+                    });
+                    document.querySelectorAll('[data-action="rejectRequest"]').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const requestId = e.target.closest('button').getAttribute('data-requestid');
+                            handleFriendRequest(requestId, 'rejected');
+                        });
+                    });
+                }, 100);
                 
                 document.getElementById('friendRequestModal').style.display = 'block';
             } catch (error) {
@@ -1069,13 +1190,24 @@ async function loadPosts() {
                         </div>
                         <div style="margin: 10px 0; color: #555;">${thread.lastMessage.content.substring(0, 50)}${thread.lastMessage.content.length > 50 ? '...' : ''}</div>
                         <div class="friend-actions">
-                            <button class="action-btn" onclick="startChat('${thread.user.id}')">
+                            <button class="action-btn" data-action="viewChat" data-userid="${thread.user.id}">
                                 <span style="margin-right: 5px;">💬</span>查看对话
                             </button>
                         </div>
                     `;
                     container.appendChild(threadElement);
                 });
+
+                // 重新绑定消息线程按钮事件
+                setTimeout(() => {
+                    document.querySelectorAll('[data-action="viewChat"]').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const userId = e.target.closest('button').getAttribute('data-userid');
+                            startChat(userId);
+                        });
+                    });
+                }, 100);
+
             } catch (error) {
                 console.error('加载消息异常:', error);
                 document.getElementById('messagesContainer').innerHTML = '<div class="empty-state">加载消息失败</div>';
@@ -1120,16 +1252,33 @@ async function loadPosts() {
                     userElement.innerHTML = `
                         <div><strong>${user.username}</strong> (UID: ${user.uid})</div>
                         <div class="friend-actions">
-                            <button class="action-btn" onclick="sendFriendRequest('${user.id}')">
+                            <button class="action-btn" data-action="sendFriendRequest" data-userid="${user.id}">
                                 <span style="margin-right: 5px;">👥</span>加好友
                             </button>
-                            <button class="action-btn" onclick="startChat('${user.id}')">
+                            <button class="action-btn" data-action="startChatFromSearch" data-userid="${user.id}">
                                 <span style="margin-right: 5px;">💬</span>发消息
                             </button>
                         </div>
                     `;
                     results.appendChild(userElement);
                 });
+
+                // 重新绑定搜索结果的按钮事件
+                setTimeout(() => {
+                    document.querySelectorAll('[data-action="sendFriendRequest"]').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const userId = e.target.closest('button').getAttribute('data-userid');
+                            sendFriendRequest(userId);
+                        });
+                    });
+                    document.querySelectorAll('[data-action="startChatFromSearch"]').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const userId = e.target.closest('button').getAttribute('data-userid');
+                            startChat(userId);
+                        });
+                    });
+                }, 100);
+
             } catch (error) {
                 console.error('搜索用户失败:', error);
                 document.getElementById('searchMessage').textContent = '搜索失败: ' + error.message;
@@ -1189,53 +1338,44 @@ async function loadPosts() {
             }
         }
 
-        async function addFriend(userId) {
+        function addFriend(userId) {
             if (!supabase || !currentUser) return;
             
-            try {
-                // 首先获取用户信息
-                const { data: user, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
-                if (error) {
-                    alert('获取用户信息失败: ' + error.message);
-                    return;
-                }
-                
-                if (confirm(`确定要添加 ${user.username} 为好友吗？`)) {
-                    const { error: requestError } = await supabase.from('friendships').insert([{
-                        user_id: currentUser.id, 
-                        friend_id: userId, 
-                        status: 'pending',
-                        created_at: new Date().toISOString()
-                    }]);
-                    
-                    if (requestError) {
-                        alert('发送好友请求失败: ' + requestError.message);
-                    } else {
-                        alert('好友请求已发送！');
+            // 首先获取用户信息
+            supabase.from('profiles').select('*').eq('id', userId).single()
+                .then(({ data: user, error }) => {
+                    if (error) {
+                        alert('获取用户信息失败: ' + error.message);
+                        return;
                     }
-                }
-            } catch (error) {
-                alert('添加好友失败: ' + error.message);
-            }
+                    
+                    if (confirm(`确定要添加 ${user.username} 为好友吗？`)) {
+                        sendFriendRequest(userId);
+                    }
+                })
+                .catch(error => {
+                    alert('添加好友失败: ' + error.message);
+                });
         }
 
-        async function startChat(userId) {
+        function startChat(userId) {
             if (!supabase || !currentUser) return;
 
-            try {
-                const { data: user, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
-                if (error) {
-                    alert('获取用户信息失败: ' + error.message);
-                    return;
-                }
-                
-                currentChatUser = user;
-                document.getElementById('messageUserName').textContent = `与 ${user.username} 对话`;
-                document.getElementById('messageModal').style.display = 'block';
-                loadMessages(userId);
-            } catch (error) {
-                alert('开始聊天失败: ' + error.message);
-            }
+            supabase.from('profiles').select('*').eq('id', userId).single()
+                .then(({ data: user, error }) => {
+                    if (error) {
+                        alert('获取用户信息失败: ' + error.message);
+                        return;
+                    }
+                    
+                    currentChatUser = user;
+                    document.getElementById('messageUserName').textContent = `与 ${user.username} 对话`;
+                    document.getElementById('messageModal').style.display = 'block';
+                    loadMessages(userId);
+                })
+                .catch(error => {
+                    alert('开始聊天失败: ' + error.message);
+                });
         }
 
         async function loadMessages(userId) {
@@ -1314,17 +1454,18 @@ async function loadPosts() {
             }
         }
 
-        async function deletePost(postId) {
+        function deletePost(postId) {
             if (!supabase || !isSuperAdmin) return;
             if (!confirm('确定要删除这个帖子吗？')) return;
 
-            try {
-                const { error } = await supabase.from('posts').delete().eq('id', postId);
-                if (error) throw error;
-                loadPosts();
-            } catch (error) {
-                alert('删除帖子失败: ' + error.message);
-            }
+            supabase.from('posts').delete().eq('id', postId)
+                .then(({ error }) => {
+                    if (error) throw error;
+                    loadPosts();
+                })
+                .catch(error => {
+                    alert('删除帖子失败: ' + error.message);
+                });
         }
 
         async function deletePostById() {
@@ -1394,14 +1535,25 @@ async function loadPosts() {
         document.addEventListener('DOMContentLoaded', function() {
             console.log('页面加载完成，开始初始化...');
             
+            // 先设置事件监听器
+            setupEventListeners();
+            
+            // 然后初始化Supabase
             if (initSupabase()) {
-                setupEventListeners();
                 checkAuthState();
                 console.log('初始化完成');
             } else {
                 document.getElementById('loginMessage').textContent = '系统初始化失败，请刷新页面';
             }
         });
+
+        // 确保所有函数都在全局作用域中可用
+        window.addFriend = addFriend;
+        window.startChat = startChat;
+        window.deletePost = deletePost;
+        window.handleFriendRequest = handleFriendRequest;
+        window.sendFriendRequest = sendFriendRequest;
+        window.removeFriend = removeFriend;
     </script>
 </body>
 </html>
