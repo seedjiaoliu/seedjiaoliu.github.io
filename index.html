@@ -369,7 +369,7 @@
     <div class="container">
         <header>
             <h1>Seed交流平台</h1>
-            <p>简单交流，真诚沟通</p>
+            <p>简单交流🥵，真诚沟通😈</p>
         </header>
 
         <div class="main-content" id="mainContent">
@@ -405,7 +405,7 @@
 
                 <div class="nav-tabs">
                     <div class="nav-tab active ripple" data-tab="posts">
-                        <span class="icon icon-posts"></span>帖子广场
+                        <span class="icon icon-posts"></span>消息广场
                     </div>
                     <div class="nav-tab ripple" data-tab="friends">
                         <span class="icon icon-friends"></span>好友列表
@@ -423,10 +423,10 @@
             </aside>
 
             <main class="content-area">
-                <!-- 帖子广场 -->
+                <!-- 消息广场 -->
                 <div class="tab-content active" id="postsTab">
                     <div class="search-box">
-                        <input type="text" id="postSearch" placeholder="搜索帖子关键词..." class="search-input">
+                        <input type="text" id="postSearch" placeholder="搜索消息（用户名）关键词..." class="search-input">
                         <button id="searchPostsBtn" class="search-button ripple">
                             <span class="icon icon-search"></span>搜索
                         </button>
@@ -478,9 +478,9 @@
                         <button id="banUserBtn" class="btn-danger ripple">
                             <span class="icon icon-delete"></span>封禁用户
                         </button>
-                        <input type="text" id="deletePostId" placeholder="输入帖子ID" class="admin-input">
+                        <input type="text" id="deletePostId" placeholder="输入消息ID" class="admin-input">
                         <button id="deletePostBtn" class="btn-danger ripple">
-                            <span class="icon icon-delete"></span>删除帖子
+                            <span class="icon icon-delete"></span>删除消息
                         </button>
                         <div id="adminMessage" class="error-message"></div>
                     </div>
@@ -489,7 +489,7 @@
         </main>
     </div>
 
-    <footer>© 2024 Seed交流平台 - 已连接到你的Supabase数据库</footer>
+    <footer>© 1145 Seed交流平台 - 已连接到Supabase数据库</footer>
 </div>
 
 <!-- 注册模态框 -->
@@ -621,7 +621,7 @@ function setupEventListeners() {
         });
     });
     
-    // 帖子相关
+    // 消息相关
     document.getElementById('createPostBtn').addEventListener('click', createPost);
     document.getElementById('searchPostsBtn').addEventListener('click', searchPosts);
     document.getElementById('postSearch').addEventListener('keypress', (e) => {
@@ -674,14 +674,14 @@ async function checkAuthState() {
     if (!supabase) return;
     
     try {
-        // 直接检查本地存储的用户信息，而不是Supabase auth
+        // 直接检查本地存储的用户消息，而不是Supabase auth
         const savedUser = localStorage.getItem('currentUser');
         if (savedUser) {
             const userData = JSON.parse(savedUser);
             currentUser = { id: userData.id };
             isSuperAdmin = userData.uid === SUPER_ADMIN.uid;
             
-            // 显示用户信息
+            // 显示用户消息
             document.getElementById('userName').textContent = userData.username;
             const userAvatar = document.getElementById('userAvatar');
             userAvatar.textContent = getInitials(userData.username);
@@ -738,7 +738,7 @@ function showUserInfo(profile) {
         document.getElementById('adminTab').style.display = 'block';
     }
     
-    // 保存用户信息到本地存储
+    // 保存用户消息到本地存储
     localStorage.setItem('currentUser', JSON.stringify(profile));
     
     switchTab('posts');
@@ -951,7 +951,7 @@ async function searchPosts() {
             });
         }
 
-        // 然后搜索匹配的帖子
+        // 然后搜索匹配的消息
         let query = supabase
             .from('posts')
             .select('*, profiles:user_id (id, username, uid, avatar_url)')
@@ -964,17 +964,17 @@ async function searchPosts() {
         const { data: posts, error: postError } = await query;
         
         if (postError) {
-            console.error('搜索帖子错误:', postError);
+            console.error('搜索消息错误:', postError);
             if (users && users.length === 0) {
-                container.innerHTML = '<div class="empty-state">搜索帖子失败</div>';
+                container.innerHTML = '<div class="empty-state">搜索消息失败</div>';
             }
             return;
         }
 
-        // 显示帖子搜索结果
+        // 显示消息搜索结果
         if (posts && posts.length > 0) {
             if (users && users.length > 0) {
-                container.innerHTML += '<div class="search-section-title">相关帖子</div>';
+                container.innerHTML += '<div class="search-section-title">相关消息</div>';
             } else {
                 container.innerHTML += '<div class="search-section-title">搜索结果</div>';
             }
@@ -1008,11 +1008,11 @@ async function searchPosts() {
 
         // 如果没有搜索结果
         if ((!users || users.length === 0) && (!posts || posts.length === 0)) {
-            container.innerHTML = '<div class="empty-state">暂无相关帖子或用户</div>';
+            container.innerHTML = '<div class="empty-state">暂无相关消息或用户</div>';
         }
         
     } catch (error) {
-        console.error('搜索帖子异常:', error);
+        console.error('搜索消息异常:', error);
         document.getElementById('postsContainer').innerHTML = '<div class="empty-state">搜索失败</div>';
     }
 }
@@ -1027,8 +1027,8 @@ async function loadPosts() {
             .order('created_at', { ascending: false });
 
         if (error) {
-            console.error('加载帖子错误:', error);
-            document.getElementById('postsContainer').innerHTML = '<div class="empty-state">加载帖子失败</div>';
+            console.error('加载消息错误:', error);
+            document.getElementById('postsContainer').innerHTML = '<div class="empty-state">加载消息失败</div>';
             return;
         }
 
@@ -1036,7 +1036,7 @@ async function loadPosts() {
         container.innerHTML = '';
 
         if (!posts || posts.length === 0) {
-            container.innerHTML = '<div class="empty-state">暂无帖子，快来发布第一条吧！</div>';
+            container.innerHTML = '<div class="empty-state">暂无消息，快来发布第一条吧！</div>';
             return;
         }
 
@@ -1066,8 +1066,8 @@ async function loadPosts() {
             container.appendChild(postElement);
         });
     } catch (error) {
-        console.error('加载帖子异常:', error);
-        document.getElementById('postsContainer').innerHTML = '<div class="empty-state">加载帖子失败</div>';
+        console.error('加载消息异常:', error);
+        document.getElementById('postsContainer').innerHTML = '<div class="empty-state">加载消息失败</div>';
     }
 }        async function loadFriends() {
             if (!supabase || !currentUser) return;
@@ -1458,11 +1458,11 @@ async function loadPosts() {
         function addFriend(userId) {
             if (!supabase || !currentUser) return;
             
-            // 首先获取用户信息
+            // 首先获取用户消息
             supabase.from('profiles').select('*').eq('id', userId).single()
                 .then(({ data: user, error }) => {
                     if (error) {
-                        alert('获取用户信息失败: ' + error.message);
+                        alert('获取用户消息失败: ' + error.message);
                         return;
                     }
                     
@@ -1481,7 +1481,7 @@ async function loadPosts() {
             supabase.from('profiles').select('*').eq('id', userId).single()
                 .then(({ data: user, error }) => {
                     if (error) {
-                        alert('获取用户信息失败: ' + error.message);
+                        alert('获取用户消息失败: ' + error.message);
                         return;
                     }
                     
@@ -1573,7 +1573,7 @@ async function loadPosts() {
 
         function deletePost(postId) {
             if (!supabase || !isSuperAdmin) return;
-            if (!confirm('确定要删除这个帖子吗？')) return;
+            if (!confirm('确定要删除这个消息吗？')) return;
 
             supabase.from('posts').delete().eq('id', postId)
                 .then(({ error }) => {
@@ -1581,7 +1581,7 @@ async function loadPosts() {
                     loadPosts();
                 })
                 .catch(error => {
-                    alert('删除帖子失败: ' + error.message);
+                    alert('删除消息失败: ' + error.message);
                 });
         }
 
@@ -1593,18 +1593,18 @@ async function loadPosts() {
             
             messageElement.textContent = '';
             if (!postId) {
-                messageElement.textContent = '请输入帖子ID';
+                messageElement.textContent = '请输入消息ID';
                 return;
             }
 
             try {
                 const { error } = await supabase.from('posts').delete().eq('id', postId);
                 if (error) throw error;
-                messageElement.textContent = '帖子删除成功';
+                messageElement.textContent = '消息删除成功';
                 messageElement.className = 'success-message';
                 document.getElementById('deletePostId').value = '';
             } catch (error) {
-                messageElement.textContent = '删除帖子失败: ' + error.message;
+                messageElement.textContent = '删除消息失败: ' + error.message;
             }
         }
 
