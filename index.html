@@ -536,8 +536,8 @@
         .search-box {
             margin-bottom: var(--spacing-lg);
             display: flex;
+            flex-direction: column;
             gap: var(--spacing-sm);
-            align-items: center;
         }
         
         .search-input {
@@ -547,6 +547,7 @@
             border-radius: var(--border-radius-full);
             font-size: 1rem;
             height: 46px;
+            min-width: 0; /* 防止在flex容器中被压缩 */
         }
         
         .search-button {
@@ -848,80 +849,66 @@
             user-select: text;
         }
         
-        /* 自定义右键菜单样式 */
+        /* 自定义右键菜单样式 - 美化版 */
         .context-menu {
             position: fixed;
-            background: var(--whitishColor);
-            border: 1px solid var(--borderColor);
-            border-radius: var(--border-radius-md);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            padding: var(--spacing-sm);
-            z-index: 10000;
-            display: none;
-            min-width: 150px;
-        }
-        
-        .context-menu-item {
-            padding: var(--spacing-sm) var(--spacing-md);
-            cursor: pointer;
-            border-radius: var(--border-radius-xs);
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-        }
-        
-        .context-menu-item:hover {
-            background: var(--accentLightTint);
-        }
-        
-        .context-menu-item i {
-            margin-right: var(--spacing-sm);
-            width: 16px;
-            text-align: center;
-        }
-        
-        .context-menu-divider {
-            height: 1px;
-            background: var(--borderColor);
-            margin: var(--spacing-xs) 0;
-        }        
-        /* 自定义右键菜单样式 */
-        .context-menu {
-            position: fixed;
-            background: var(--whitishColor);
-            border: 1px solid var(--borderColor);
-            border-radius: var(--border-radius-md);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            padding: var(--spacing-sm);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: none;
+            border-radius: var(--border-radius-lg);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1), 0 2px 10px rgba(0, 0, 0, 0.07);
+            padding: var(--spacing-md);
             z-index: 999999;
             display: none;
-            min-width: 150px;
+            min-width: 180px;
+            transform-origin: top left;
+            transition: transform 0.2s var(--md-motion-ease), opacity 0.2s var(--md-motion-ease);
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        
+        .context-menu.visible {
+            opacity: 1;
+            transform: scale(1);
         }
         
         .context-menu-item {
-            padding: var(--spacing-sm) var(--spacing-md);
+            padding: var(--spacing-md) var(--spacing-md);
+            margin: 2px 0;
             cursor: pointer;
-            border-radius: var(--border-radius-xs);
-            font-size: 0.9rem;
+            border-radius: var(--border-radius-md);
+            font-size: 0.95rem;
             display: flex;
             align-items: center;
+            color: var(--textColorDark);
+            font-weight: 400;
+            transition: all 0.15s var(--md-motion-ease);
         }
         
         .context-menu-item:hover {
             background: var(--accentLightTint);
+            transform: translateX(3px);
+        }
+        
+        .context-menu-item:active {
+            transform: translateX(3px) scale(0.98);
         }
         
         .context-menu-item .icon {
-            margin-right: var(--spacing-sm);
-            width: 16px;
-            height: 16px;
+            margin-right: var(--spacing-md);
+            width: 18px;
+            height: 18px;
             display: inline-block;
+            opacity: 0.9;
+            color: var(--darkColor);
         }
         
         .context-menu-divider {
             height: 1px;
             background: var(--borderColor);
-            margin: var(--spacing-xs) 0;
+            margin: var(--spacing-sm) 0;
+            opacity: 0.7;
         }
         
         /* 右键菜单图标 */
@@ -1051,9 +1038,10 @@
                     <div class="nav-tab ripple" data-tab="messages">
                         <span class="icon icon-messages"></span>私信消息
                     </div>
-                    <div class="nav-tab ripple" data-tab="add-friend">
-                        <span class="icon icon-add-friend"></span>添加好友
+                    <div class="nav-tab ripple" data-tab="search">
+                        <span class="icon icon-search"></span>搜索
                     </div>
+
                     <div class="nav-tab ripple" id="adminTab" style="display: none;" data-tab="admin">
                         <span class="icon icon-admin"></span>管理面板
                     </div>
@@ -1063,12 +1051,6 @@
             <main class="content-area">
                 <!-- 消息广场 -->
                 <div class="tab-content active" id="postsTab">
-                    <div class="search-box">
-                        <input type="text" id="postSearch" placeholder="搜索消息（用户名）关键词..." class="search-input">
-                        <button id="searchPostsBtn" class="search-button ripple">
-                            <span class="icon icon-search"></span>搜索
-                        </button>
-                    </div>
                     <div class="new-message-indicator" id="newMessageIndicator">有新消息，点击刷新</div>
                     <div class="post-form">
                         <h3>发布新内容</h3>
@@ -1095,6 +1077,19 @@
                     </div>
                 </div>
 
+                <!-- 搜索 -->
+                <div class="tab-content" id="searchTab">
+                    <div class="search-box">
+                        <input type="text" id="searchPostsInput" placeholder="搜索消息（用户名）关键词..." class="search-input">
+                        <button id="searchPostsButton" class="search-button ripple">
+                            <span class="icon icon-search"></span>搜索
+                        </button>
+                    </div>
+                    <div class="search-results-container" id="searchResultsContainer">
+                        <div class="empty-state">请输入关键词进行搜索</div>
+                    </div>
+                </div>
+
                 <!-- 添加好友 -->
                 <div class="tab-content" id="addFriendTab">
                     <div class="form-group">
@@ -1111,6 +1106,8 @@
                         <div class="empty-state">请输入关键词搜索用户</div>
                     </div>
                 </div>
+
+
 
                 <!-- 管理面板 -->
                 <div class="tab-content" id="adminTabContent">
@@ -1256,7 +1253,7 @@
             const isOnPost = !!postElement;
             const isOnMessage = !!messageElement;
             
-            // 显示菜单
+            // 显示菜单前先设置位置
             contextMenu.style.display = 'block';
             contextMenu.style.left = e.pageX + 'px';
             contextMenu.style.top = e.pageY + 'px';
@@ -1273,6 +1270,13 @@
             if (rect.bottom > windowHeight) {
                 contextMenu.style.top = (e.pageY - rect.height) + 'px';
             }
+            
+            // 添加动画效果
+            setTimeout(() => {
+                if (contextMenu) {
+                    contextMenu.classList.add('visible');
+                }
+            }, 10);
             
             // 更新菜单项状态
             const copyItem = contextMenu.querySelector('[data-action="copy"]');
@@ -1298,7 +1302,15 @@
         
         // 隐藏右键菜单
         function hideContextMenu() {
-            contextMenu.style.display = 'none';
+            if (contextMenu) {
+                contextMenu.classList.remove('visible');
+                // 等待动画完成后隐藏
+                setTimeout(() => {
+                    if (contextMenu) {
+                        contextMenu.style.display = 'none';
+                    }
+                }, 200);
+            }
         }
         
         // 点击其他地方隐藏菜单
@@ -1536,8 +1548,15 @@
             }, 1000);
         }
 
+        let isSearching = false; // 标记是否正在搜索
+
         // 刷新消息广场（智能刷新，不中断用户操作）
         function refreshPosts() {
+            // 如果正在搜索，则跳过刷新
+            if (isSearching) {
+                return;
+            }
+
             // 检查用户是否选中文本或在底部
             const isSelected = window.getSelection().toString();
             
@@ -1574,6 +1593,11 @@
 
         // 刷新私信对话（智能刷新，不中断用户操作）
         function refreshMessages() {
+            // 如果正在搜索，则跳过刷新
+            if (isSearching) {
+                return;
+            }
+
             // 检查用户是否选中文本
             const isSelected = window.getSelection().toString();
             
@@ -1835,10 +1859,6 @@
             
             // 消息相关
             document.getElementById('createPostBtn').addEventListener('click', createPost);
-            document.getElementById('searchPostsBtn').addEventListener('click', searchPosts);
-            document.getElementById('postSearch').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') searchPosts();
-            });
             
             // 好友相关
             document.getElementById('showFriendRequestsBtn').addEventListener('click', showFriendRequests);
@@ -1850,6 +1870,13 @@
             // 管理员功能
             document.getElementById('banUserBtn').addEventListener('click', banUser);
             document.getElementById('deletePostBtn').addEventListener('click', deletePostById);
+            
+            // 搜索功能
+            document.getElementById('searchPostsButton').addEventListener('click', searchContent);
+            document.getElementById('searchPostsInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') searchContent();
+            });
+
             
             // 实时消息提示点击事件
             document.getElementById('newMessageIndicator').addEventListener('click', loadPosts);
@@ -1894,6 +1921,10 @@
                     loadPosts();
                     // 启动定时刷新
                     startPostsRefresh();
+                    break;
+                case 'search':
+                    document.getElementById('searchResultsContainer').innerHTML = '<div class="empty-state">请输入关键词进行搜索</div>';
+                    document.getElementById('searchPostsInput').value = '';
                     break;
                 case 'add-friend': 
                     document.getElementById('searchResults').innerHTML = '<div class="empty-state">请输入关键词搜索用户</div>';
@@ -2146,10 +2177,30 @@
             }
         }
 
-        async function searchPosts() {
+        // 新的搜索功能，用于搜索界面
+        async function searchContent() {
             if (!supabase) return;
             
-            const searchTerm = document.getElementById('postSearch').value.trim();
+            const searchTerm = document.getElementById('searchPostsInput').value.trim();
+            const container = document.getElementById('searchResultsContainer');
+            
+            // 如果搜索词为空，显示提示信息
+            if (!searchTerm) {
+                container.innerHTML = '<div class="empty-state">请输入关键词进行搜索</div>';
+                return;
+            }
+            
+            // 显示搜索加载状态
+            container.innerHTML = `
+                <div class="loading-placeholder">
+                    <div class="loading-balls">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                    <div class="loading-text">搜索中...</div>
+                </div>
+            `;
             
             try {
                 // 首先搜索匹配的用户
@@ -2159,7 +2210,18 @@
                     .or(`username.ilike.%${searchTerm}%,uid.ilike.%${searchTerm}%`)
                     .neq('id', currentUser?.id || '');
 
-                const container = document.getElementById('postsContainer');
+                // 然后搜索匹配的消息
+                let query = supabase
+                    .from('posts')
+                    .select('*, profiles:user_id (id, username, uid, avatar_url)')
+                    .order('created_at', { ascending: false });
+                
+                if (searchTerm) {
+                    query = query.ilike('content', `%${searchTerm}%`);
+                }
+                
+                const { data: posts, error: postError } = await query;
+
                 container.innerHTML = '';
 
                 // 显示用户搜索结果
@@ -2187,26 +2249,6 @@
                         `;
                         container.appendChild(userElement);
                     });
-                }
-
-                // 然后搜索匹配的消息
-                let query = supabase
-                    .from('posts')
-                    .select('*, profiles:user_id (id, username, uid, avatar_url)')
-                    .order('created_at', { ascending: false });
-                
-                if (searchTerm) {
-                    query = query.ilike('content', `%${searchTerm}%`);
-                }
-                
-                const { data: posts, error: postError } = await query;
-                
-                if (postError) {
-                    console.error('搜索消息错误:', postError);
-                    if (users && users.length === 0) {
-                        container.innerHTML = '<div class="empty-state">搜索消息失败</div>';
-                    }
-                    return;
                 }
 
                 // 显示消息搜索结果
@@ -2250,8 +2292,8 @@
                 }
                 
             } catch (error) {
-                console.error('搜索消息异常:', error);
-                document.getElementById('postsContainer').innerHTML = '<div class="empty-state">搜索失败</div>';
+                console.error('搜索异常:', error);
+                container.innerHTML = '<div class="empty-state">搜索失败</div>';
             }
         }
 
@@ -2969,11 +3011,12 @@
         }
 
         function logout() {
+            // 先清除所有状态和订阅
             currentUser = null;
             isSuperAdmin = false;
             localStorage.removeItem('currentUser');
             
-            // 取消订阅
+            // 取消所有订阅
             if (postsSubscription) {
                 postsSubscription.unsubscribe();
                 postsSubscription = null;
@@ -2990,17 +3033,31 @@
             stopMessagesRefresh();
             stopChatRefresh();
             
-            document.getElementById('mainContent').classList.remove('logged-in');
-            document.getElementById('authSection').style.display = 'block';
-            hideAllTabs();
+            // 清空所有输入框
             document.getElementById('loginIdentifier').value = '';
             document.getElementById('loginPassword').value = '';
-            
             document.getElementById('userName').textContent = '';
             document.getElementById('userAvatar').textContent = '?';
+            
+            // 隐藏管理员相关元素
             document.getElementById('adminBadge').style.display = 'none';
             document.getElementById('adminTab').style.display = 'none';
+            
+            // 最后更新UI状态
+            hideAllTabs();
+            document.getElementById('authSection').style.display = 'block';
+            document.getElementById('mainContent').classList.remove('logged-in');
+            
+            // 强制重新渲染DOM
+            requestAnimationFrame(() => {
+                document.getElementById('mainContent').style.display = 'none';
+                requestAnimationFrame(() => {
+                    document.getElementById('mainContent').style.display = '';
+                });
+            });
         }
+
+
 
         // ==================== 页面初始化 ====================
         document.addEventListener('DOMContentLoaded', function() {
