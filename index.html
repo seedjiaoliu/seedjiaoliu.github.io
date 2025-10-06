@@ -81,6 +81,7 @@
         .main-content { 
             display: flex; 
             min-height: 600px; 
+            position: relative;
         }
         
         .sidebar { 
@@ -89,12 +90,95 @@
             padding: var(--spacing-md); 
             border-right: 1px solid var(--borderColor); 
             flex-shrink: 0; 
+            transform: translateX(-100%);
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 900;
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar.show {
+            transform: translateX(0);
         }
         
         .content-area { 
             flex: 1; 
             padding: var(--spacing-md); 
             background: var(--whitishColor); 
+            transition: margin-left 0.3s ease;
+        }
+        
+        .content-area.sidebar-visible {
+            margin-left: 280px;
+        }
+        
+        /* 导航栏切换按钮样式 */
+        .nav-toggle-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 5px;
+            border: none;
+            transition: all 0.3s ease-in-out;
+            background: #040f16;
+            color: #f5f5f5;
+            cursor: pointer;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .nav-toggle-btn:hover {
+            box-shadow: 0 0 20px 0px #2e2e2e3a;
+        }
+        
+        .nav-toggle-btn:focus {
+            outline: none;
+        }
+        
+        .nav-toggle-btn:active {
+            transform: scale(0.9);
+        }
+        
+        .nav-icon::before {
+            content: "≡";
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            width: 100%;
+        }
+        
+        /* 移动端竖屏适配 */
+        @media screen and (max-width: 480px) and (orientation: portrait) {
+            .nav-toggle-btn {
+                width: 40px;
+                height: 40px;
+                top: 15px;
+                left: 15px;
+            }
+            
+            .nav-icon::before {
+                font-size: 20px;
+            }
+        }
+        
+        /* 侧边栏移动端适配 */
+        @media screen and (max-width: 768px) {
+            .sidebar {
+                width: 240px;
+            }
+            
+            .content-area.sidebar-visible {
+                margin-left: 240px;
+            }
         }
         
         .auth-section { 
@@ -315,14 +399,146 @@
             transition: var(--transitions);
         }
         
-        .post-form:hover, .friend-item:hover, .message-thread:hover, .user-search-result:hover {
+        .friend-item:hover, .message-thread:hover, .user-search-result:hover {
             transform: translateY(-2px);
         }
         
-        .post-form h3 {
-            margin-bottom: var(--spacing-md);
-            color: var(--textColorDark);
-            font-weight: 500;
+        /* 固定在底部的输入框样式 */
+        .fixed-input-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--whitishColor);
+            border-top: 1px solid var(--borderColor);
+            padding: var(--spacing-sm) var(--spacing-md);
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+        
+        .fixed-post-form {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: none;
+            box-shadow: none;
+            background: transparent;
+            display: flex;
+            align-items: flex-end;
+            gap: var(--spacing-md);
+        }
+        
+        .fixed-post-form .form-group {
+            flex: 1;
+            margin: 0;
+        }
+        
+        .fixed-post-form textarea {
+            width: 100%;
+            min-height: 40px;
+            max-height: 120px;
+            padding: var(--spacing-sm);
+            border: 1px solid var(--borderColor);
+            border-radius: var(--border-radius-md);
+            resize: none;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        /* 表情按钮样式 */
+        .button-group {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-sm);
+        }
+        
+        .emoji-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: var(--spacing-sm);
+            border-radius: var(--border-radius-md);
+            transition: background-color 0.2s ease;
+            width: auto;
+            height: auto;
+            text-transform: none;
+            letter-spacing: normal;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--lightColor);
+            border: 1px solid var(--borderColor);
+        }
+        
+        .emoji-button:hover {
+            background: var(--accentLightTint);
+            transform: none;
+        }
+        
+        .emoji-button svg {
+            color: var(--darkColor);
+        }
+        
+        /* 表情面板样式 */
+        .emoji-panel {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            right: 0;
+            background: var(--whitishColor);
+            border: 1px solid var(--borderColor);
+            border-radius: var(--border-radius-md);
+            padding: var(--spacing-sm);
+            margin-bottom: var(--spacing-xs);
+            max-height: 200px;
+            overflow-y: auto;
+            opacity: 0;
+            transform: translateY(10px) scale(0.95);
+            pointer-events: none;
+            z-index: 1000;
+            box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.12);
+            transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
+                        transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                        box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .emoji-panel.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+        
+        .emoji-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .emoji-grid span {
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            transition: background-color 0.2s ease;
+        }
+        
+        .emoji-grid span:hover {
+            background: var(--accentLightTint);
+        }
+        
+        .fixed-post-btn {
+            width: auto;
+            padding: var(--spacing-sm) var(--spacing-lg);
+            height: 40px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* 为内容区域添加底部边距，避免被固定输入框遮挡 */
+        .content-area {
+            padding-bottom: 80px;
         }
         
         .modal { 
@@ -335,11 +551,15 @@
             background: rgba(0,0,0,0.5); 
             z-index: 1000; 
             backdrop-filter: blur(4px);
-            opacity: 0;
+            opacity: 0; 
             transition: opacity 0.3s ease;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto;
         }
         
         .modal.show {
+            display: flex;
             opacity: 1;
         }
         
@@ -350,12 +570,14 @@
             border-radius: var(--border-radius-lg); 
             max-width: 450px; 
             position: relative; 
-            transform: translateY(-20px);
-            transition: transform 0.3s ease;
+            transform: translateY(-20px) scale(0.95);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
         }
         
         .modal.show .modal-content {
-            transform: translateY(0);
+            transform: translateY(0) scale(1);
+            opacity: 1;
         }
         
         .close-modal { 
@@ -382,21 +604,21 @@
         .floating-button .button {
           width: fit-content;
           display: flex;
-          padding: 0.8em 0.7rem;
+          padding: 0.6em 0.5rem;
           cursor: pointer;
-          gap: 0.3rem;
+          gap: 0.2rem;
           font-weight: bold;
-          font-size: 0.9rem;
-          border-radius: 25px;
+          font-size: 0.8rem;
+          border-radius: 20px;
           text-shadow: 2px 2px 3px rgb(136 0 136 / 50%);
           background: linear-gradient(15deg, #880088, #aa2068, #cc3f47, #de6f3d, #f09f33, #de6f3d, #cc3f47, #aa2068, #880088) no-repeat;
           background-size: 300%;
           color: #fff;
           border: none;
           background-position: left center;
-          box-shadow: 0 20px 8px -15px rgba(0,0,0,.2);
+          box-shadow: 0 15px 6px -10px rgba(0,0,0,.2);
           transition: background .3s ease;
-          z-index: 1000;
+          z-index: 900;
         }
 
         .floating-button .button:hover {
@@ -409,22 +631,50 @@
           fill: #fff;
         }
 
-        /* 打钱动画样式 */
+        /* 打钱动画样式 - Seed主题（橙色） */
         .donation-animation-container {
           background-color: #fff7e6;
           display: flex;
-          width: 250px;
-          height: 75px;
-          position: relative;
-          border-radius: 5px;
-          transition: 0.3s ease-in-out;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          width: 350px;
+          height: 110px;
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%) scale(0.8);
+          opacity: 0;
+          border-radius: 8px;
+          transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
           z-index: 1001;
         }
 
         .donation-animation-container.animate {
-          transform: scale(1.03);
-          width: 150px;
+          transform: translate(-50%, -50%) scale(1);
+          opacity: 1;
+          width: 200px;
+        }
+
+        /* 打钱动画样式 - 西瓜主题（绿色） */
+        .watermelon-donation-container {
+          background-color: #e6fff7;
+          display: flex;
+          width: 350px;
+          height: 110px;
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%) scale(0.8);
+          opacity: 0;
+          border-radius: 8px;
+          transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+          z-index: 1001;
+        }
+
+        .watermelon-donation-container.animate {
+          transform: translate(-50%, -50%) scale(1);
+          opacity: 1;
+          width: 200px;
         }
 
         .donation-animation-container.animate .left-side {
@@ -433,9 +683,27 @@
 
         .donation-animation-container .left-side {
           background: linear-gradient(135deg, #ff8c00, #ff4d4d);
-          width: 85px;
-          height: 75px;
-          border-radius: 4px 0 0 4px;
+          width: 120px;
+          height: 110px;
+          border-radius: 6px 0 0 6px;
+          position: relative;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          transition: 0.3s;
+          flex-shrink: 0;
+          overflow: hidden;
+        }
+
+        .watermelon-donation-container.animate .left-side {
+          width: 100%;
+        }
+
+        .watermelon-donation-container .left-side {
+          background: linear-gradient(135deg, #00b359, #004d26);
+          width: 120px;
+          height: 110px;
+          border-radius: 6px 0 0 6px;
           position: relative;
           display: flex;
           justify-content: center;
@@ -446,7 +714,7 @@
         }
 
         .donation-animation-container .right-side {
-          width: calc(100% - 85px);
+          width: calc(100% - 120px);
           display: flex;
           align-items: center;
           overflow: hidden;
@@ -456,44 +724,97 @@
         }
 
         .donation-animation-container .new {
-          font-size: 15px;
+          font-size: 20px;
           font-family: "Inter", sans-serif;
-          margin-left: 12px;
+          margin-left: 15px;
           color: #333;
+          font-weight: 600;
+        }
+
+        .watermelon-donation-container .right-side {
+          width: calc(100% - 120px);
+          display: flex;
+          align-items: center;
+          overflow: hidden;
+          justify-content: space-between;
+          white-space: nowrap;
+          transition: 0.3s;
+        }
+
+        .watermelon-donation-container .new {
+          font-size: 20px;
+          font-family: "Inter", sans-serif;
+          margin-left: 15px;
+          color: #004d26;
+          font-weight: 600;
         }
 
         .donation-animation-container .card {
-          width: 48px;
-          height: 30px;
+          width: 70px;
+          height: 45px;
           background-color: #ffb366;
-          border-radius: 4px;
+          border-radius: 6px;
           position: absolute;
           display: flex;
           z-index: 10;
           flex-direction: column;
           align-items: center;
-          box-shadow: 5px 5px 5px -2px rgba(255, 77, 77, 0.4);
+          box-shadow: 7px 7px 7px -4px rgba(255, 77, 77, 0.4);
         }
 
         .donation-animation-container .card-line {
-          width: 42px;
-          height: 8px;
+          width: 60px;
+          height: 12px;
           background-color: #ffcc99;
-          border-radius: 1px;
-          margin-top: 4px;
+          border-radius: 2px;
+          margin-top: 6px;
         }
 
         .donation-animation-container .buttons {
-          width: 5px;
-          height: 5px;
+          width: 7px;
+          height: 7px;
           background-color: #cc4b00;
           box-shadow:
-            0 -6px 0 0 #992d00,
-            0 6px 0 0 #ff6a1a;
+            0 -8px 0 0 #992d00,
+            0 8px 0 0 #ff6a1a;
           border-radius: 50%;
-          margin-top: 3px;
+          margin-top: 4px;
           transform: rotate(90deg);
-          margin: 6px 0 0 -18px;
+          margin: 8px 0 0 -24px;
+        }
+
+        .watermelon-donation-container .card {
+          width: 70px;
+          height: 45px;
+          background-color: #66ff99;
+          border-radius: 6px;
+          position: absolute;
+          display: flex;
+          z-index: 10;
+          flex-direction: column;
+          align-items: center;
+          box-shadow: 7px 7px 7px -4px rgba(0, 153, 51, 0.4);
+        }
+
+        .watermelon-donation-container .card-line {
+          width: 60px;
+          height: 12px;
+          background-color: #99ffcc;
+          border-radius: 2px;
+          margin-top: 6px;
+        }
+
+        .watermelon-donation-container .buttons {
+          width: 7px;
+          height: 7px;
+          background-color: #006633;
+          box-shadow:
+            0 -8px 0 0 #00331a,
+            0 8px 0 0 #00994d;
+          border-radius: 50%;
+          margin-top: 4px;
+          transform: rotate(90deg);
+          margin: 8px 0 0 -24px;
         }
 
         .donation-animation-container.animate .card {
@@ -504,83 +825,170 @@
           animation: slide-post 0.7s cubic-bezier(0.23, 1, 0.32, 1) both;
         }
 
+        .watermelon-donation-container.animate .card {
+          animation: slide-top 0.9s cubic-bezier(0.68, -0.55, 0.265, 1.55) both;
+        }
+
+        .watermelon-donation-container.animate .post {
+          animation: slide-post 0.7s cubic-bezier(0.23, 1, 0.32, 1) both;
+        }
+
         @keyframes slide-top {
           0% {
             transform: translateY(0);
           }
           50% {
-            transform: translateY(-45px) rotate(90deg);
+            transform: translateY(-70px) rotate(90deg);
           }
           60% {
-            transform: translateY(-45px) rotate(90deg);
+            transform: translateY(-70px) rotate(90deg);
           }
           100% {
-            transform: translateY(-5px) rotate(90deg);
+            transform: translateY(-10px) rotate(90deg);
+          }
+        }
+
+        /* 调整动画关键帧，使其适合更大的尺寸 */
+        @keyframes slide-post {
+          0% {
+            transform: translateY(0);
+          }
+          100% {
+            transform: translateY(-160px);
           }
         }
 
         .donation-animation-container .post {
-          width: 42px;
-          height: 50px;
+          width: 60px;
+          height: 70px;
           background-color: #f5f5f5;
           position: absolute;
           z-index: 11;
-          bottom: 6px;
-          top: 75px;
-          border-radius: 4px;
+          bottom: 10px;
+          top: 110px;
+          border-radius: 6px;
           overflow: hidden;
         }
 
         .donation-animation-container .post-line {
-          width: 32px;
-          height: 5px;
+          width: 46px;
+          height: 7px;
           background-color: #666;
           position: absolute;
-          border-radius: 0 0 2px 2px;
-          right: 5px;
-          top: 5px;
+          border-radius: 0 0 3px 3px;
+          right: 7px;
+          top: 7px;
+        }
+
+        .watermelon-donation-container .post {
+          width: 60px;
+          height: 70px;
+          background-color: #f5f5f5;
+          position: absolute;
+          z-index: 11;
+          bottom: 10px;
+          top: 110px;
+          border-radius: 6px;
+          overflow: hidden;
+        }
+
+        .watermelon-donation-container .post-line {
+          width: 46px;
+          height: 7px;
+          background-color: #006633;
+          position: absolute;
+          border-radius: 0 0 3px 3px;
+          right: 7px;
+          top: 7px;
         }
 
         .donation-animation-container .post-line:before {
           content: "";
           position: absolute;
-          width: 32px;
-          height: 5px;
+          width: 46px;
+          height: 7px;
           background-color: #888;
-          top: -5px;
+          top: -7px;
         }
 
         .donation-animation-container .screen {
-          width: 32px;
-          height: 15px;
+          width: 46px;
+          height: 22px;
           background-color: #ffffff;
           position: absolute;
-          top: 14px;
-          right: 5px;
-          border-radius: 2px;
+          top: 20px;
+          right: 7px;
+          border-radius: 3px;
+        }
+
+        .watermelon-donation-container .post-line:before {
+          content: "";
+          position: absolute;
+          width: 46px;
+          height: 7px;
+          background-color: #00994d;
+          top: -7px;
+        }
+
+        .watermelon-donation-container .screen {
+          width: 46px;
+          height: 22px;
+          background-color: #ffffff;
+          position: absolute;
+          top: 20px;
+          right: 7px;
+          border-radius: 3px;
         }
 
         .donation-animation-container .numbers {
-          width: 7px;
-          height: 7px;
+          width: 10px;
+          height: 10px;
           background-color: #999;
           box-shadow:
-            0 -11px 0 0 #999,
-            0 11px 0 0 #999;
-          border-radius: 1px;
+            0 -16px 0 0 #999,
+            0 16px 0 0 #999;
+          border-radius: 2px;
           position: absolute;
           transform: rotate(90deg);
-          left: 17px;
-          top: 34px;
+          left: 25px;
+          top: 50px;
+        }
+
+        .watermelon-donation-container .numbers {
+          width: 10px;
+          height: 10px;
+          background-color: #006633;
+          box-shadow:
+            0 -16px 0 0 #006633,
+            0 16px 0 0 #006633;
+          border-radius: 2px;
+          position: absolute;
+          transform: rotate(90deg);
+          left: 25px;
+          top: 50px;
         }
 
         .donation-animation-container .numbers-line2 {
-          width: 7px;
-          height: 7px;
+          width: 10px;
+          height: 10px;
           background-color: #bbb;
           box-shadow:
             0 -11px 0 0 #bbb,
             0 11px 0 0 #bbb;
+          border-radius: 1px;
+          position: absolute;
+          transform: rotate(90deg);
+          left: 17px;
+          top: 45px;
+        }
+
+        .watermelon-donation-container .numbers-line2 {
+          width: 10px;
+          height: 10px;
+          background-color: #00994d;
+          box-shadow:
+            0 -11px 0 0 #00994d,
+            0 11px 0 0 #00994d;
           border-radius: 1px;
           position: absolute;
           transform: rotate(90deg);
@@ -612,6 +1020,11 @@
           animation: fade-in-fwd 0.3s 0.7s backwards;
         }
 
+        .watermelon-donation-container.animate .icon {
+          animation: fade-in-fwd 0.3s 0.7s backwards;
+          color: #e6fff7;
+        }
+
         @keyframes fade-in-fwd {
           0% {
             opacity: 0;
@@ -630,20 +1043,37 @@
           left: 0;
           width: 100%;
           height: 100%;
-          background-color: rgba(0, 0, 0, 0.5);
+          background-color: rgba(0, 0, 0, 0);
           display: flex;
           justify-content: center;
           align-items: center;
           z-index: 1002;
+          opacity: 0;
+          transition: background-color 0.5s ease, opacity 0.5s ease;
+          pointer-events: none;
+        }
+
+        .donation-modal.show {
+          background-color: rgba(0, 0, 0, 0.5);
+          opacity: 1;
+          pointer-events: auto;
         }
 
         .modal-content {
           background-color: white;
           padding: 20px;
           border-radius: 10px;
-          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
           text-align: center;
           position: relative;
+          transform: scale(0.8);
+          opacity: 0;
+          transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .donation-modal.show .modal-content {
+          transform: scale(1);
+          opacity: 1;
         }
 
         .close-modal {
@@ -676,12 +1106,55 @@
           transition: .3s ease;
         }
         
+        .watermelon-floating-button .watermelon-button {
+          width: fit-content;
+          display: flex;
+          padding: 0.6em 0.5rem;
+          cursor: pointer;
+          gap: 0.2rem;
+          font-weight: bold;
+          font-size: 0.8rem;
+          border-radius: 20px;
+          text-shadow: 2px 2px 3px rgba(0, 100, 0, 0.5);
+          background: linear-gradient(15deg, #000000, #003300, #006600, #009900, #00cc00, #009900, #006600, #003300, #000000) no-repeat;
+          background-size: 300%;
+          color: #fff;
+          border: none;
+          background-position: left center;
+          box-shadow: 0 15px 6px -10px rgba(0,0,0,.2);
+          transition: background .3s ease;
+          z-index: 900;
+        }
+
+        .watermelon-floating-button .watermelon-button:hover {
+          background-size: 320%;
+          background-position: right center;
+          transform: none;
+        }
+
+        .watermelon-floating-button .watermelon-button:hover svg {
+          fill: #fff;
+        }
+
+        .watermelon-button svg {
+          width: 18px;
+          fill: #00cc00;
+          transition: .3s ease;
+        }
+        
         /* 悬浮球样式 */
         .floating-button {
           position: fixed;
           top: 20px;
           right: 20px;
-          z-index: 1000;
+          z-index: 900;
+        }
+        
+        .watermelon-floating-button {
+          position: fixed;
+          top: 80px;
+          right: 20px;
+          z-index: 900;
         }
         
         /* 消息加载动画样式 (参考linyu-mini-web项目) */
@@ -1289,6 +1762,11 @@
     </style>
 </head>
 <body>
+    <!-- 导航栏切换按钮 -->
+    <button class="nav-toggle-btn" id="navToggleBtn">
+        <span class="icon nav-icon"></span>
+    </button>
+    
     <div class="container">
         <header>
             <h1>Seed交流平台</h1>
@@ -1358,14 +1836,6 @@
                 <!-- 消息广场 -->
                 <div class="tab-content active" id="postsTab">
                     <div class="new-message-indicator" id="newMessageIndicator">有新消息，点击刷新</div>
-                    <div class="post-form">
-                        <h3>发布新内容</h3>
-                        <div class="form-group">
-                            <textarea id="postContent" placeholder="分享你的想法..." rows="4"></textarea>
-                        </div>
-                        <button id="createPostBtn" class="ripple">发布</button>
-                        <div id="postMessage" class="error-message"></div>
-                    </div>
                     <div class="posts-container" id="postsContainer"></div>
                 </div>
 
@@ -1437,6 +1907,31 @@
                     </div>
                 </div>
             </main>
+            <!-- 固定在底部的输入框 -->
+            <div class="fixed-input-container">
+                <div class="post-form fixed-post-form">
+                    <div class="form-group">
+                        <textarea id="postContent" placeholder="分享你的想法..." rows="1"></textarea>
+                        <div id="emojiPanel" class="emoji-panel">
+                            <div class="emoji-grid">
+                                😀 😃 😄 😁 😆 😅 😂 🤣 😊 😇 🙂 🙃 😉 😌 😍 🥰 😘 😗 😙 😚 😋 😛 😝 😜 🤪 🤨 🧐 🤓 😎 🤩 🥳 😏 😒 😞 😔 😟 😕 🙁 ☹️ 😣 😖 😫 😩 🥺 😢 😭 😤 😠 😡 🤬 🤯 😳 🥵 🥶 😱 😨 😰 😥 😓 🤗 🤔 🤭 🤫 🤥 😶 😐 😑 😬 🥴 😯 😦 😧 😮 😲 🥱 😴 😪 🌙 😵 🤐 🥵 🤧 🤒 🤕 🤑 🤠 😈 👿 👹 👺 🤡 💩 👻 💀 ☠️ 👽 👾 🤖 🎃 😺 😸 😹 😻 😼 😽 🙀 😿 😾
+                            </div>
+                        </div>
+                    </div>
+                    <div class="button-group">
+                        <button id="emojiBtn" class="emoji-button ripple">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                                <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                                <line x1="15" y1="9" x2="15.01" y2="9"></line>
+                            </svg>
+                        </button>
+                        <button id="createPostBtn" class="ripple fixed-post-btn">发布</button>
+                    </div>
+                    <div id="postMessage" class="error-message"></div>
+                </div>
+            </div>
         </div>
 
         <footer>© 2025 Seed交流平台 - 已连接到Supabase数据库</footer>
@@ -1751,6 +2246,89 @@
             messages: true,
             chat: true
         };
+        
+        // 西瓜打钱动画和弹窗逻辑
+        window.handleWatermelonDonateClick = function() {
+            // 创建动画容器
+            const container = document.createElement('div');
+            container.className = 'watermelon-donation-container';
+            
+            // 添加动画所需的元素
+            container.innerHTML = `
+                <div class="left-side">
+                    <div class="card">
+                        <div class="card-line"></div>
+                        <div class="card-line"></div>
+                        <div class="buttons"></div>
+                    </div>
+                    <div class="post">
+                        <div class="post-line"></div>
+                        <div class="screen"></div>
+                        <div class="numbers"></div>
+                        <div class="numbers-line2"></div>
+                    </div>
+                    <span class="icon">DONATE</span>
+                </div>
+                <div class="right-side">
+                    <span class="new">感谢支持西瓜！</span>
+                </div>
+            `;
+            
+            // 添加到按钮旁边
+            const floatingButton = document.querySelector('.watermelon-floating-button');
+            document.body.appendChild(container);
+            
+            // 动画容器已在CSS中设置为屏幕中央定位，这里无需额外定位
+            
+            
+            // 触发动画
+            setTimeout(() => {
+                container.classList.add('animate');
+            }, 10);
+            
+            // 动画结束后显示弹窗
+            setTimeout(() => {
+                // 创建弹窗
+                const modal = document.createElement('div');
+                modal.className = 'donation-modal';
+                modal.innerHTML = `
+                    <div class="modal-content">
+                        <span class="close-modal">&times;</span>
+                        <h3>感谢您的支持！</h3>
+                        <img src="https://imgtolink.com/uploads/68e34fcb957af_1759727531321.jpg" alt="西瓜捐赠二维码">
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                
+                // 触发弹窗动画
+                setTimeout(() => {
+                    modal.classList.add('show');
+                }, 10);
+                
+                // 关闭弹窗时添加淡出动画
+                modal.querySelector('.close-modal').addEventListener('click', () => {
+                    modal.classList.remove('show');
+                    setTimeout(() => {
+                        document.body.removeChild(modal);
+                    }, 500);
+                });
+                
+                // 点击弹窗外部关闭
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.classList.remove('show');
+                        setTimeout(() => {
+                            document.body.removeChild(modal);
+                        }, 500);
+                    }
+                });
+                
+                // 移除动画容器
+                setTimeout(() => {
+                    document.body.removeChild(container);
+                }, 500);
+            }, 1500);
+        };
 
         function initSupabase() {
             try {
@@ -1766,7 +2344,82 @@
             }
         }
 
-        // ==================== 工具函数 ====================
+        // ==================== 工具函数 ====================        
+        // 导航栏切换功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const navToggleBtn = document.getElementById('navToggleBtn');
+            const sidebar = document.querySelector('.sidebar');
+            const contentArea = document.querySelector('.content-area');
+            
+            // 默认显示导航按钮
+            if (navToggleBtn) {
+                navToggleBtn.style.display = 'flex';
+            }
+            
+            // 添加点击事件监听器
+            if (navToggleBtn && sidebar && contentArea) {
+                navToggleBtn.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                    contentArea.classList.toggle('sidebar-visible');
+                });
+            }
+            
+            // 表情面板功能
+            const emojiBtn = document.getElementById('emojiBtn');
+            const emojiPanel = document.getElementById('emojiPanel');
+            const postContent = document.getElementById('postContent');
+            
+            if (emojiBtn && emojiPanel) {
+                // 点击表情按钮切换面板显示/隐藏
+                emojiBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    emojiPanel.classList.toggle('show');
+                });
+                
+                // 点击表情选择面板中的表情
+                const emojiGrid = emojiPanel.querySelector('.emoji-grid');
+                if (emojiGrid) {
+                    // 将表情字符串分割为单个表情
+                    const emojis = emojiGrid.textContent.trim().split(' ');
+                    emojiGrid.innerHTML = '';
+                    
+                    // 为每个表情创建单独的span元素
+                    emojis.forEach(emoji => {
+                        if (emoji) {
+                            const span = document.createElement('span');
+                            span.textContent = emoji;
+                            span.addEventListener('click', function(e) {
+                                e.stopPropagation();
+                                if (postContent) {
+                                    // 在光标位置插入表情
+                                    const start = postContent.selectionStart;
+                                    const end = postContent.selectionEnd;
+                                    const text = postContent.value;
+                                    postContent.value = text.substring(0, start) + emoji + text.substring(end);
+                                    
+                                    // 移动光标到表情后面
+                                    postContent.selectionStart = postContent.selectionEnd = start + emoji.length;
+                                    postContent.focus();
+                                }
+                            });
+                            emojiGrid.appendChild(span);
+                        }
+                    });
+                }
+                
+                // 点击页面其他地方关闭表情面板
+                document.addEventListener('click', function() {
+                    if (emojiPanel.classList.contains('show')) {
+                        emojiPanel.classList.remove('show');
+                    }
+                });
+                
+                // 阻止表情面板内部点击事件冒泡
+                emojiPanel.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            }
+        });
         function hideAllTabs() {
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.style.display = 'none';
@@ -2213,6 +2866,16 @@
             
             // 隐藏新消息提示
             document.getElementById('newMessageIndicator').style.display = 'none';
+            
+            // 根据当前标签页控制输入框显示
+            const fixedInputContainer = document.querySelector('.fixed-input-container');
+            if (fixedInputContainer) {
+                if (tabName === 'posts') {
+                    fixedInputContainer.style.display = 'block';
+                } else {
+                    fixedInputContainer.style.display = 'none';
+                }
+            }
             
             switch(tabName) {
                 case 'friends': 
@@ -2852,7 +3515,13 @@
                 }, 100);
                 
                 const modal = document.getElementById('friendRequestModal');
-                modal.style.display = 'block';
+                // 确保先移除可能存在的show类
+                modal.classList.remove('show');
+                // 清除内联的display样式，确保CSS中的display:flex能生效
+                modal.style.display = '';
+                // 强制重排
+                void modal.offsetWidth;
+                // 然后添加show类触发动画
                 setTimeout(() => {
                     modal.classList.add('show');
                 }, 10);
@@ -3388,6 +4057,7 @@
         window.handleFriendRequest = handleFriendRequest;
         window.sendFriendRequest = sendFriendRequest;
         window.removeFriend = removeFriend;
+        window.handleWatermelonDonateClick = handleWatermelonDonateClick;
         
         // 打钱动画和弹窗逻辑
         window.handleDonateClick = function() {
@@ -3420,11 +4090,8 @@
             const floatingButton = document.querySelector('.floating-button');
             document.body.appendChild(container);
             
-            // 定位动画容器
-            const buttonRect = floatingButton.getBoundingClientRect();
-            container.style.position = 'fixed';
-            container.style.top = `${buttonRect.bottom + 10}px`;
-            container.style.right = `${window.innerWidth - buttonRect.right}px`;
+            // 动画容器已在CSS中设置为屏幕中央定位，这里无需额外定位
+            
             
             // 触发动画
             setTimeout(() => {
@@ -3445,15 +4112,26 @@
                 `;
                 document.body.appendChild(modal);
                 
-                // 关闭弹窗
+                // 触发弹窗动画
+                setTimeout(() => {
+                    modal.classList.add('show');
+                }, 10);
+                
+                // 关闭弹窗时添加淡出动画
                 modal.querySelector('.close-modal').addEventListener('click', () => {
-                    document.body.removeChild(modal);
+                    modal.classList.remove('show');
+                    setTimeout(() => {
+                        document.body.removeChild(modal);
+                    }, 500);
                 });
                 
                 // 点击弹窗外部关闭
                 modal.addEventListener('click', (e) => {
                     if (e.target === modal) {
-                        document.body.removeChild(modal);
+                        modal.classList.remove('show');
+                        setTimeout(() => {
+                            document.body.removeChild(modal);
+                        }, 500);
                     }
                 });
                 
@@ -3472,6 +4150,16 @@
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
             </svg>
             给seed打钱
+        </button>
+    </div>
+    
+    <!-- 西瓜悬浮打钱按钮 -->
+    <div class="watermelon-floating-button">
+        <button class="watermelon-button" onclick="handleWatermelonDonateClick()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+            给西瓜打钱
         </button>
     </div>
 </body>
