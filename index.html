@@ -124,8 +124,8 @@
             border-radius: 5px;
             border: none;
             transition: all 0.3s ease-in-out;
-            background: #040f16;
-            color: #f5f5f5;
+            background: transparent;
+            color: #000000;
             cursor: pointer;
             z-index: 1000;
             display: flex;
@@ -1158,6 +1158,7 @@
         }
         
         /* 消息加载动画样式 (参考linyu-mini-web项目) */
+        /* 加载动画 */
         .loading-placeholder {
             display: flex;
             flex-direction: column;
@@ -1167,43 +1168,61 @@
             color: var(--textColorDark);
         }
         
-        .loading-balls {
-            width: 50px;
-            display: flex;
-            flex-flow: row nowrap;
-            align-items: center;
-            justify-content: space-between;
+        /* From Uiverse.io by mrpumps31232 */
+        .loading-wave {
+          width: 300px;
+          height: 100px;
+          display: flex;
+          justify-content: center;
+          align-items: flex-end;
         }
-        
-        .loading-balls div {
-            width: 10px;
+
+        .loading-bar {
+          width: 20px;
+          height: 10px;
+          margin: 0 5px;
+          background-color: #3498db;
+          border-radius: 5px;
+          animation: loading-wave-animation 1s ease-in-out infinite;
+        }
+
+        .loading-bar:nth-child(2) {
+          animation-delay: 0.1s;
+        }
+
+        .loading-bar:nth-child(3) {
+          animation-delay: 0.2s;
+        }
+
+        .loading-bar:nth-child(4) {
+          animation-delay: 0.3s;
+        }
+
+        @keyframes loading-wave-animation {
+          0% {
             height: 10px;
-            border-radius: 50%;
-            background-color: var(--darkColor);
-            transform: translateY(-100%);
-            animation: wave 0.8s ease-in-out alternate infinite;
+          }
+
+          50% {
+            height: 50px;
+          }
+
+          100% {
+            height: 10px;
+          }
         }
         
-        .loading-balls div:nth-of-type(1) {
-            animation-delay: -0.4s;
-        }
-        
-        .loading-balls div:nth-of-type(2) {
-            animation-delay: -0.2s;
-        }
-        
-        @keyframes wave {
-            from {
-                transform: translateY(-100%);
-            }
-            to {
-                transform: translateY(100%);
-            }
+        .seed-loading {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          padding: 20px;
         }
         
         .loading-text {
             margin-top: var(--spacing-md);
             font-size: 14px;
+            text-align: center;
         }
         
         /* 移除消息悬停动画 */
@@ -1628,13 +1647,94 @@
             user-select: text;
         }
         
+        /* 通知弹窗样式 - 右下角 */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--border-radius-md);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 99999;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+            opacity: 0;
+            max-width: 300px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        
+        .notification.success {
+            background: linear-gradient(rgba(76, 175, 80, 0.1), rgba(76, 175, 80, 0.1));
+            border-color: #4CAF50;
+            color: #1b5e20;
+        }
+        
+        .notification.error {
+            background: linear-gradient(rgba(244, 67, 54, 0.1), rgba(244, 67, 54, 0.1));
+            border-color: #f44336;
+            color: #b71c1c;
+        }
+        
+        .notification.info {
+            background: linear-gradient(rgba(33, 150, 243, 0.1), rgba(33, 150, 243, 0.1));
+            border-color: #2196F3;
+            color: #0d47a1;
+        }
+        
+        .notification.warning {
+            background: linear-gradient(rgba(255, 152, 0, 0.1), rgba(255, 152, 0, 0.1));
+            border-color: #ff9800;
+            color: #e65100;
+        }
+        
+        .notification-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .notification-icon {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+        
+        .notification-close {
+            background: none;
+            border: 1px solid;
+            border-radius: var(--border-radius-xs);
+            padding: 4px;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+            margin-left: 8px;
+        }
+        
+        .notification-close:hover {
+            opacity: 1;
+        }
+        
+        .notification-close svg {
+            width: 16px;
+            height: 16px;
+        }
+
         /* 自定义右键菜单样式 - 美化版 */
         .context-menu {
             position: fixed;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: none;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: var(--border-radius-lg);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1), 0 2px 10px rgba(0, 0, 0, 0.07);
             padding: var(--spacing-md);
@@ -1696,8 +1796,9 @@
             display: block;
             width: 100%;
             height: 100%;
-            background: var(--textColorDark);
+            background: #4285f4;
             clip-path: polygon(0 0, 100% 0, 100% 20%, 40% 20%, 40% 100%, 20% 100%, 20% 20%, 0 20%);
+            animation: copyIconPulse 2s ease-in-out infinite;
         }
         
         .icon-copy-full::before {
@@ -1705,8 +1806,9 @@
             display: block;
             width: 100%;
             height: 100%;
-            background: var(--textColorDark);
+            background: #4285f4;
             clip-path: polygon(0 0, 100% 0, 100% 20%, 40% 20%, 40% 100%, 20% 100%, 20% 20%, 0 20%);
+            animation: copyIconPulse 2s ease-in-out infinite;
         }
         
         .icon-paste::before {
@@ -1714,8 +1816,9 @@
             display: block;
             width: 100%;
             height: 100%;
-            background: var(--textColorDark);
+            background: #34a853;
             clip-path: polygon(0 0, 80% 0, 100% 20%, 100% 100%, 20% 100%, 0 80%);
+            animation: pasteIconSlide 1.5s ease-in-out infinite;
         }
         
         .icon-reload::before {
@@ -1723,10 +1826,10 @@
             display: block;
             width: 100%;
             height: 100%;
-            border: 2px solid var(--textColorDark);
+            border: 2px solid #ea4335;
             border-radius: 50%;
             border-top-color: transparent;
-            transform: rotate(45deg);
+            animation: reloadSpin 2s linear infinite;
         }
         
         .icon-settings::before {
@@ -1734,7 +1837,7 @@
             display: block;
             width: 100%;
             height: 100%;
-            background: var(--textColorDark);
+            background: #9c27b0;
             clip-path: polygon(
                 50% 0%,
                 62% 38%,
@@ -1747,6 +1850,54 @@
                 0 38%,
                 38% 38%
             );
+            animation: settingsPulse 2.5s ease-in-out infinite;
+        }
+        
+        /* 右键菜单图标动画 */
+        @keyframes copyIconPulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.9;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes pasteIconSlide {
+            0% {
+                transform: translateY(-5px);
+                opacity: 0.7;
+            }
+            50% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-5px);
+                opacity: 0.7;
+            }
+        }
+        
+        @keyframes reloadSpin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        @keyframes settingsPulse {
+            0%, 100% {
+                transform: rotate(0deg) scale(1);
+                opacity: 0.9;
+            }
+            50% {
+                transform: rotate(5deg) scale(1.05);
+                opacity: 1;
+            }
         }
         
         .icon-about::before {
@@ -1758,6 +1909,326 @@
             height: 100%;
             font-weight: bold;
             color: var(--textColorDark);
+        }
+        
+        /* 复杂按钮样式 - From Uiverse.io by 00Kubi */ 
+        .custom-button {
+          --primary: #8b5cf6; /* 紫色 */
+          --secondary: #10b981; /* 绿色 */
+          --neutral-1: #ffffff;
+          --neutral-2: #f3f4f6;
+          --radius: 30px; /* 增大圆角 */
+
+          cursor: pointer;
+          border-radius: var(--radius);
+          text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+          border: none;
+          box-shadow:
+            0 1px 1px rgba(255, 255, 255, 0.4),
+            0 8px 16px rgba(139, 92, 246, 0.2),
+            0 3px 6px rgba(139, 92, 246, 0.1);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+          transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          min-width: 160px;
+          padding: 15px;
+          height: 50px;
+          font-family: "Inter", system-ui, sans-serif;
+          font-style: normal;
+          font-size: 16px;
+          font-weight: 600;
+          letter-spacing: -0.2px;
+          color: var(--primary); /* 文字颜色设为紫色 */
+        }
+
+        .custom-button:hover {
+          transform: translateY(-2px) scale(1.02);
+          box-shadow:
+            0 2px 2px rgba(255, 255, 255, 0.4),
+            0 18px 32px rgba(0, 0, 0, 0.15),
+            0 8px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .custom-button:active {
+          transform: scale(1);
+          box-shadow:
+            0 0 1px 2px rgba(255, 255, 255, 0.3),
+            0 10px 3px -3px rgba(0, 0, 0, 0.2);
+        }
+        .custom-button:after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          border-radius: var(--radius);
+          border: 2.5px solid transparent;
+          background:
+            linear-gradient(var(--neutral-1), var(--neutral-2)) padding-box,
+            linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.45))
+              border-box;
+          z-index: 0;
+          transition: all 0.4s ease;
+        }
+        .custom-button:hover::after {
+          transform: scale(1.05, 1.1);
+          box-shadow: inset 0 -1px 3px 0 rgba(255, 255, 255, 1);
+        }
+        .custom-button::before {
+          content: "";
+          inset: 5px 4px 4px 4px;
+          position: absolute;
+          background: linear-gradient(to top, var(--neutral-1), var(--neutral-2));
+          border-radius: 30px;
+          filter: blur(0.5px);
+          z-index: 2;
+        }
+        .state p {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .state .icon {
+          position: absolute;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          margin: auto;
+          transform: scale(1);
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .state .icon svg {
+          overflow: visible;
+          width: 20px;
+          height: 20px;
+        }
+
+        /* Outline */
+        .outline {
+          position: absolute;
+          border-radius: inherit;
+          overflow: hidden;
+          z-index: 1;
+          opacity: 0;
+          transition: opacity 0.4s ease;
+          inset: -2px -3.5px;
+        }
+        .outline::before {
+          content: "";
+          position: absolute;
+          inset: -100%;
+          background: conic-gradient(
+            from 180deg,
+            transparent 60%,
+            var(--primary) 85%,
+            transparent 100%
+          );
+          animation: spin 2.5s linear infinite;
+          animation-play-state: paused;
+          opacity: 0.7;
+        }
+        @keyframes spin {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+        .custom-button:hover .outline {
+          opacity: 1;
+        }
+        .custom-button:hover .outline::before {
+          animation-play-state: running;
+        }
+
+        /* Letters */
+        .state p span {
+          display: block;
+          opacity: 0;
+          animation: slideDown 0.8s ease forwards calc(var(--i) * 0.03s);
+        }
+        .custom-button:hover p span {
+          opacity: 1;
+          animation: wave 0.5s ease forwards calc(var(--i) * 0.02s);
+        }
+        .custom-button:focus p span {
+          opacity: 1;
+          animation: disapear 0.6s ease forwards calc(var(--i) * 0.03s);
+        }
+        @keyframes wave {
+          30% {
+            opacity: 1;
+            transform: translateY(4px) translateX(0) rotate(0);
+          }
+          50% {
+            opacity: 1;
+            transform: translateY(-4px) translateX(0) rotate(0);
+            color: var(--primary);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0) translateX(0) rotate(0);
+          }
+        }
+        @keyframes slideDown {
+          0% {
+            opacity: 0;
+            transform: translateY(-20px) translateX(5px) rotate(-90deg);
+            color: var(--primary);
+            filter: blur(5px);
+          }
+          30% {
+            opacity: 1;
+            transform: translateY(4px) translateX(0) rotate(0);
+            filter: blur(0);
+          }
+          50% {
+            opacity: 1;
+            transform: translateY(-3px) translateX(0) rotate(0);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0) translateX(0) rotate(0);
+          }
+        }
+        @keyframes disapear {
+          from {
+            opacity: 1;
+          }
+          to {
+            opacity: 0;
+            transform: translateX(5px) translateY(20px);
+            color: var(--primary);
+            filter: blur(5px);
+          }
+        }
+
+        /* Plane */
+        .state--default .icon svg {
+          animation: land 0.6s ease forwards;
+        }
+        .custom-button:hover .state--default .icon {
+          transform: rotate(45deg) scale(1.25);
+        }
+        .custom-button:focus .state--default svg {
+          animation: takeOff 0.8s linear forwards;
+        }
+        .custom-button:focus .state--default .icon {
+          transform: rotate(0) scale(1.25);
+        }
+        @keyframes takeOff {
+          0% {
+            opacity: 1;
+          }
+          60% {
+            opacity: 1;
+            transform: translateX(80px) rotate(45deg) scale(2.2);
+          }
+          100% {
+            opacity: 0;
+            transform: translateX(180px) rotate(45deg) scale(0);
+          }
+        }
+        @keyframes land {
+          0% {
+            transform: translateX(-60px) translateY(30px) rotate(-50deg) scale(2);
+            opacity: 0;
+            filter: blur(3px);
+          }
+          100% {
+            transform: translateX(0) translateY(0) rotate(0);
+            opacity: 1;
+            filter: blur(0);
+          }
+        }
+
+        /* Contrail */
+        .state--default .icon:before {
+          content: "";
+          position: absolute;
+          top: 50%;
+          height: 2px;
+          width: 0;
+          left: -5px;
+          background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.5));
+        }
+        .custom-button:focus .state--default .icon:before {
+          animation: contrail 0.8s linear forwards;
+        }
+        @keyframes contrail {
+          0% {
+            width: 0;
+            opacity: 1;
+          }
+          8% {
+            width: 15px;
+          }
+          60% {
+            opacity: 0.7;
+            width: 80px;
+          }
+          100% {
+            opacity: 0;
+            width: 160px;
+          }
+        }
+
+        /* States */
+        .state {
+          padding-left: 29px;
+          z-index: 2;
+          display: flex;
+          position: relative;
+        }
+        .state--default span:nth-child(4) {
+          margin-right: 5px;
+        }
+        .state--sent {
+          display: none;
+        }
+        .state--sent svg {
+          transform: scale(1.25);
+          margin-right: 8px;
+        }
+        .custom-button:focus .state--default {
+          position: absolute;
+        }
+        .custom-button:focus .state--sent {
+          display: flex;
+        }
+        .custom-button:focus .state--sent span {
+          opacity: 0;
+          animation: slideDown 0.8s ease forwards calc(var(--i) * 0.2s);
+        }
+        .custom-button:focus .state--sent .icon svg {
+          opacity: 0;
+          animation: appear 1.2s ease forwards 0.8s;
+        }
+        @keyframes appear {
+          0% {
+            opacity: 0;
+            transform: scale(4) rotate(-40deg);
+            color: var(--primary);
+            filter: blur(4px);
+          }
+          30% {
+            opacity: 1;
+            transform: scale(0.6);
+            filter: blur(1px);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(1.2);
+            filter: blur(0);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1);
+          }
         }
     </style>
 </head>
@@ -1806,6 +2277,9 @@
                     <button id="showFriendRequestsBtn" style="margin-top: var(--spacing-md); padding: var(--spacing-sm) var(--spacing-lg); background: #8ab4f8;" class="ripple">
                         <span class="icon icon-friend-request"></span>好友请求 
                         <span id="friendRequestCount">0</span>
+                    </button>
+                    <button id="changeNicknameButton" style="margin-top: var(--spacing-md); padding: var(--spacing-sm) var(--spacing-lg); background: #e3f2fd; color: var(--textColorDark);" class="ripple">
+                        <span class="icon icon-settings"></span>更改昵称
                     </button>
                     <button id="logoutButton" style="margin-top: var(--spacing-md); padding: var(--spacing-sm) var(--spacing-lg); background: #f1f3f4; color: var(--textColorDark);" class="ripple">
                         <span class="icon icon-logout"></span>退出登录
@@ -1927,7 +2401,32 @@
                                 <line x1="15" y1="9" x2="15.01" y2="9"></line>
                             </svg>
                         </button>
-                        <button id="createPostBtn" class="ripple fixed-post-btn">发布</button>
+                        <button id="createPostBtn" class="custom-button">
+                            <div class="outline"></div>
+                            <div class="state state--default">
+                                <div class="icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="m22 2-7 20-4-9-9-4 20-7Z"></path>
+                                    </svg>
+                                </div>
+                                <p>
+                                    <span style="--i: 0">发</span>
+                                    <span style="--i: 1">布</span>
+                                </p>
+                            </div>
+                            <div class="state state--sent">
+                                <div class="icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                </div>
+                                <p>
+                                    <span style="--i: 0">已</span>
+                                    <span style="--i: 1">发</span>
+                                    <span style="--i: 2">布</span>
+                                </p>
+                            </div>
+                        </button>
                     </div>
                     <div id="postMessage" class="error-message"></div>
                 </div>
@@ -2008,8 +2507,33 @@
             <div class="form-group">
                 <textarea id="messageText" placeholder="输入消息..." rows="3"></textarea>
             </div>
-            <button id="sendMessageBtn" class="btn-success ripple">
-                <span class="icon icon-chat"></span>发送消息
+            <button id="sendMessageBtn" class="custom-button">
+                <div class="outline"></div>
+                <div class="state state--default">
+                    <div class="icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m22 2-7 20-4-9-9-4 20-7Z"></path>
+                        </svg>
+                    </div>
+                    <p>
+                        <span style="--i: 0">发</span>
+                        <span style="--i: 1">送</span>
+                        <span style="--i: 2">消</span>
+                        <span style="--i: 3">息</span>
+                    </p>
+                </div>
+                <div class="state state--sent">
+                    <div class="icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                    <p>
+                        <span style="--i: 0">已</span>
+                        <span style="--i: 1">发</span>
+                        <span style="--i: 2">送</span>
+                    </p>
+                </div>
             </button>
             <div id="messageSendMessage" class="error-message"></div>
         </div>
@@ -2024,6 +2548,46 @@
                 <div class="empty-state">加载中...</div>
             </div>
         </div>
+    </div>
+
+    <!-- 修改昵称模态框 -->
+    <div class="modal" id="changeNicknameModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeChangeNicknameModal">×</span>
+            <h3>修改昵称</h3>
+            <div class="form-group">
+                <label>当前密码</label>
+                <div class="input-group password-container">
+                    <input type="password" id="currentPassword" placeholder="请输入当前密码" class="input">
+                    <button class="toggle-password" id="toggleCurrentPassword">
+                        <span class="icon icon-eye"></span>
+                    </button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>新昵称</label>
+                <div class="input-group">
+                    <input type="text" id="newNickname" placeholder="请输入新昵称（2-20字符）" class="input">
+                </div>
+            </div>
+            <button id="confirmChangeNicknameBtn" class="btn-success ripple">确认修改</button>
+            <div id="changeNicknameMessage" class="error-message"></div>
+        </div>
+    </div>
+
+    <!-- 右下角提示弹窗 -->
+    <div id="notification" class="notification" style="display: none;">
+        <div class="notification-content">
+            <svg class="notification-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span id="notificationContent"></span>
+        </div>
+        <button class="notification-close" aria-label="关闭通知">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
     </div>
 
     <!-- 先加载 Supabase 库 -->
@@ -2175,19 +2739,20 @@
                     navigator.clipboard.readText().then(text => {
                         // 在实际应用中，你可能需要将文本粘贴到当前焦点元素
                         console.log('粘贴的文本:', text);
-                        alert('粘贴功能已触发，内容: ' + text);
+                        showNotification('粘贴功能已触发，内容已复制', 'info');
                     }).catch(err => {
                         console.error('粘贴失败:', err);
+                        showNotification('粘贴失败，请重试', 'error');
                     });
                     break;
                 case 'reload':
                     location.reload();
                     break;
                 case 'settings':
-                    alert('设置功能');
+                    showNotification('设置功能尚未实现', 'info');
                     break;
                 case 'about':
-                    alert('Seed交流平台 v1.0\n简单交流，真诚沟通');
+                    showNotification('Seed交流平台 v1.0\n简单交流，真诚沟通', 'info');
                     break;
             }
             
@@ -2347,6 +2912,9 @@
         // ==================== 工具函数 ====================        
         // 导航栏切换功能
         document.addEventListener('DOMContentLoaded', function() {
+            // 初始化Supabase连接
+            initSupabase();
+            
             const navToggleBtn = document.getElementById('navToggleBtn');
             const sidebar = document.querySelector('.sidebar');
             const contentArea = document.querySelector('.content-area');
@@ -2361,6 +2929,9 @@
             if (fixedInputContainer && !currentUser) {
                 fixedInputContainer.style.display = 'none';
             }
+            
+            // 检查用户认证状态
+            checkAuthState();
             
             // 添加点击事件监听器
             if (navToggleBtn && sidebar && contentArea) {
@@ -2853,6 +3424,34 @@
             
             // 密码显示切换
             setupPasswordToggle();
+            
+            // 修改昵称相关
+            const changeNicknameButton = document.getElementById('changeNicknameButton');
+            if (changeNicknameButton) {
+                changeNicknameButton.addEventListener('click', showChangeNicknameModal);
+            }
+            
+            const closeChangeNicknameModal = document.getElementById('closeChangeNicknameModal');
+            if (closeChangeNicknameModal) {
+                closeChangeNicknameModal.addEventListener('click', () => closeModal('changeNicknameModal'));
+            }
+            
+            const confirmChangeNicknameBtn = document.getElementById('confirmChangeNicknameBtn');
+            if (confirmChangeNicknameBtn) {
+                confirmChangeNicknameBtn.addEventListener('click', changeNickname);
+            }
+            
+            // 修改昵称模态框中的密码显示切换
+            const toggleCurrentPassword = document.getElementById('toggleCurrentPassword');
+            const currentPassword = document.getElementById('currentPassword');
+            
+            if (toggleCurrentPassword && currentPassword) {
+                toggleCurrentPassword.addEventListener('click', function() {
+                    const type = currentPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+                    currentPassword.setAttribute('type', type);
+                    this.querySelector('.icon').className = type === 'password' ? 'icon icon-eye' : 'icon icon-eye-off';
+                });
+            }
         }
 
         function switchTab(tabName) {
@@ -2965,6 +3564,177 @@
                 return null;
             }
         }
+        
+        // ==================== 通知功能 ====================
+        function showNotification(message, type = 'info', duration = 3000) {
+            const notification = document.getElementById('notification');
+            const notificationContent = document.getElementById('notificationContent');
+            const notificationIcon = notification.querySelector('.notification-icon');
+            const closeButton = notification.querySelector('.notification-close');
+            
+            // 设置通知内容
+            notificationContent.textContent = message;
+            
+            // 移除所有类型类
+            notification.classList.remove('success', 'error', 'info', 'warning');
+            
+            // 添加指定类型类
+            notification.classList.add(type);
+            
+            // 根据类型设置图标
+            const icons = {
+                success: 'M5 13l4 4L19 7',
+                error: 'M18 6L6 18M6 6l12 12',
+                info: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+                warning: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z'
+            };
+            
+            // 更新图标路径
+            notificationIcon.querySelector('path').setAttribute('d', icons[type]);
+            
+            // 移除之前的关闭按钮事件监听器
+            const newCloseButton = closeButton.cloneNode(true);
+            closeButton.parentNode.replaceChild(newCloseButton, closeButton);
+            
+            // 添加关闭按钮点击事件
+            newCloseButton.addEventListener('click', function() {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 300);
+            });
+            
+            // 显示通知
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
+            
+            // 定时隐藏通知
+            const hideTimeout = setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 300);
+            }, duration);
+            
+            // 点击通知本身也可以关闭
+            notification.addEventListener('click', function(e) {
+                // 避免与关闭按钮的点击事件冲突
+                if (e.target !== newCloseButton && !newCloseButton.contains(e.target)) {
+                    clearTimeout(hideTimeout);
+                    notification.classList.remove('show');
+                    setTimeout(() => {
+                        notification.style.display = 'none';
+                    }, 300);
+                }
+            });
+        }
+        
+        // ==================== 修改昵称功能 ====================
+        function showChangeNicknameModal() {
+            const modal = document.getElementById('changeNicknameModal');
+            const messageElement = document.getElementById('changeNicknameMessage');
+            
+            // 清空之前的消息和输入
+            messageElement.textContent = '';
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newNickname').value = '';
+            
+            // 显示模态框并添加动画效果
+            modal.style.display = 'flex';
+            setTimeout(() => {
+                modal.classList.add('show');
+            }, 10);
+        }
+        
+        async function changeNickname() {
+            if (!supabase || !currentUser) {
+                showNotification('系统未初始化，请刷新页面', 'error');
+                return;
+            }
+            
+            const currentPassword = document.getElementById('currentPassword').value.trim();
+            const newNickname = document.getElementById('newNickname').value.trim();
+            
+            // 验证输入
+            if (!currentPassword) {
+                showNotification('请输入当前密码', 'error');
+                return;
+            }
+            
+            if (!newNickname) {
+                showNotification('请输入新昵称', 'error');
+                return;
+            }
+            
+            if (newNickname.length < 2 || newNickname.length > 20) {
+                showNotification('昵称长度必须在2-20个字符之间', 'error');
+                return;
+            }
+            
+            try {
+                // 先查询用户信息验证密码
+                const { data: user, error } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', currentUser.id)
+                    .single();
+                
+                if (error || !user) {
+                    console.error('查询用户错误:', error);
+                    showNotification('用户信息获取失败', 'error');
+                    return;
+                }
+                
+                if (user.password !== currentPassword) {
+                    showNotification('密码错误', 'error');
+                    return;
+                }
+                
+                // 检查新昵称是否已存在（排除当前用户）
+                const { data: existingUser } = await supabase
+                    .from('profiles')
+                    .select('username')
+                    .eq('username', newNickname)
+                    .neq('id', currentUser.id)
+                    .maybeSingle();
+                    
+                if (existingUser) {
+                    showNotification('该昵称已被使用', 'error');
+                    return;
+                }
+                
+                // 更新昵称
+                const { error: updateError } = await supabase
+                    .from('profiles')
+                    .update({ username: newNickname })
+                    .eq('id', currentUser.id);
+                
+                if (updateError) {
+                    console.error('更新昵称错误:', updateError);
+                    showNotification('修改失败: ' + updateError.message, 'error');
+                    return;
+                }
+                
+                // 更新成功
+                closeModal('changeNicknameModal');
+                
+                // 更新页面显示的用户名
+                document.getElementById('userName').textContent = newNickname;
+                
+                // 更新本地存储的用户信息
+                const updatedUser = { ...user, username: newNickname };
+                localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+                
+                // 显示成功通知
+                showNotification('昵称修改成功', 'success');
+                
+            } catch (error) {
+                console.error('修改昵称异常:', error);
+                showNotification('修改失败: ' + error.message, 'error');
+            }
+        }
 
         function showUserInfo(profile) {
             document.getElementById('mainContent').classList.add('logged-in');
@@ -2984,21 +3754,22 @@
             localStorage.setItem('currentUser', JSON.stringify(profile));
             
             switchTab('posts');
+            
+            // 在消息广场页面显示登录成功提示
+            showNotification('登录成功，欢迎回来！', 'success');
         }
 
         async function login() {
             if (!supabase) {
-                document.getElementById('loginMessage').textContent = '系统未初始化，请刷新页面';
+                showNotification('系统未初始化，请刷新页面', 'error');
                 return;
             }
 
             const identifier = document.getElementById('loginIdentifier').value.trim();
             const password = document.getElementById('loginPassword').value.trim();
-            const messageElement = document.getElementById('loginMessage');
             
-            messageElement.textContent = '';
             if (!identifier || !password) {
-                messageElement.textContent = '请输入用户名和密码';
+                showNotification('请输入用户名和密码', 'error');
                 return;
             }
 
@@ -3014,17 +3785,17 @@
 
                 if (error) {
                     console.error('查询用户错误:', error);
-                    messageElement.textContent = '用户不存在或查询错误';
+                    showNotification('用户不存在或查询错误', 'error');
                     return;
                 }
 
                 if (!user) {
-                    messageElement.textContent = '用户不存在';
+                    showNotification('用户不存在', 'error');
                     return;
                 }
 
                 if (user.password !== password) {
-                    messageElement.textContent = '密码错误';
+                    showNotification('密码错误', 'error');
                     return;
                 }
 
@@ -3046,13 +3817,13 @@
                 
             } catch (error) {
                 console.error('登录错误:', error);
-                messageElement.textContent = '登录失败: ' + error.message;
+                showNotification('登录失败: ' + error.message, 'error');
             }
         }
 
         async function register() {
             if (!supabase) {
-                document.getElementById('registerMessage').textContent = '系统未初始化，请刷新页面';
+                showNotification('系统未初始化，请刷新页面', 'error');
                 return;
             }
 
@@ -3060,21 +3831,19 @@
             const uid = document.getElementById('regUid').value.trim();
             const password = document.getElementById('regPassword').value;
             const confirmPassword = document.getElementById('regConfirmPassword').value;
-            const messageElement = document.getElementById('registerMessage');
             
-            messageElement.textContent = '';
             if (!username || !uid || !password) {
-                messageElement.textContent = '请填写所有字段';
+                showNotification('请填写所有字段', 'error');
                 return;
             }
             
             if (password !== confirmPassword) {
-                messageElement.textContent = '两次输入的密码不一致';
+                showNotification('两次输入的密码不一致', 'error');
                 return;
             }
 
             if (username.length < 2 || username.length > 20) {
-                messageElement.textContent = '用户名长度必须在2-20个字符之间';
+                showNotification('用户名长度必须在2-20个字符之间', 'error');
                 return;
             }
 
@@ -3087,7 +3856,7 @@
                     .maybeSingle();
                     
                 if (existingUser) {
-                    messageElement.textContent = '用户名已存在';
+                    showNotification('用户名已存在', 'error');
                     return;
                 }
 
@@ -3099,7 +3868,7 @@
                     .maybeSingle();
                     
                 if (existingUid) {
-                    messageElement.textContent = 'UID已存在';
+                    showNotification('UID已存在', 'error');
                     return;
                 }
 
@@ -3113,18 +3882,16 @@
 
                 if (error) {
                     console.error('注册错误:', error);
-                    messageElement.textContent = '注册失败: ' + error.message;
+                    showNotification('注册失败: ' + error.message, 'error');
                 } else {
-                    messageElement.textContent = '注册成功！请登录';
-                    messageElement.className = 'success-message';
+                    showNotification('注册成功！请登录', 'success');
                     setTimeout(() => {
                         closeModal('registerModal');
-                        messageElement.className = 'error-message';
                     }, 2000);
                 }
             } catch (error) {
                 console.error('注册异常:', error);
-                messageElement.textContent = '注册失败: ' + error.message;
+                showNotification('注册失败: ' + error.message, 'error');
             }
         }
 
@@ -3132,11 +3899,9 @@
             if (!supabase || !currentUser) return;
 
             const content = document.getElementById('postContent').value.trim();
-            const messageElement = document.getElementById('postMessage');
             
-            messageElement.textContent = '';
             if (!content) {
-                messageElement.textContent = '请输入内容';
+                showNotification('请输入内容', 'error');
                 return;
             }
 
@@ -3149,16 +3914,17 @@
 
                 if (error) {
                     console.error('发布错误:', error);
-                    messageElement.textContent = '发布失败: ' + error.message;
+                    showNotification('发布失败: ' + error.message, 'error');
                 } else {
                     document.getElementById('postContent').value = '';
                     // 隐藏新消息提示
                     document.getElementById('newMessageIndicator').style.display = 'none';
+                    showNotification('发布成功！', 'success');
                     loadPosts();
                 }
             } catch (error) {
                 console.error('发布异常:', error);
-                messageElement.textContent = '发布失败: ' + error.message;
+                showNotification('发布失败: ' + error.message, 'error');
             }
         }
 
@@ -3177,15 +3943,17 @@
             
             // 显示搜索加载状态
             container.innerHTML = `
-                <div class="loading-placeholder">
-                    <div class="loading-balls">
-                        <div></div>
-                        <div></div>
-                        <div></div>
+                    <div class="loading-placeholder">
+                        <div class="seed-loading">
+                            <div class="loading-wave">
+                            <div class="loading-bar"></div>
+                            <div class="loading-bar"></div>
+                            <div class="loading-bar"></div>
+                            <div class="loading-bar"></div>
+                        </div>
+                        <div class="loading-text">搜索中...</div>
                     </div>
-                    <div class="loading-text">搜索中...</div>
-                </div>
-            `;
+                `;
             
             try {
                 // 首先搜索匹配的用户
@@ -3290,10 +4058,12 @@
             if (isFirstLoad.posts) {
                 container.innerHTML = `
                     <div class="loading-placeholder">
-                        <div class="loading-balls">
-                            <div></div>
-                            <div></div>
-                            <div></div>
+                        <div class="seed-loading">
+                            <div class="loading-wave">
+                            <div class="loading-bar"></div>
+                            <div class="loading-bar"></div>
+                            <div class="loading-bar"></div>
+                            <div class="loading-bar"></div>
                         </div>
                         <div class="loading-text">加载中...</div>
                     </div>
@@ -3365,10 +4135,13 @@
             if (isFirstLoad.friends) {
                 container.innerHTML = `
                     <div class="loading-placeholder">
-                        <div class="loading-balls">
-                            <div></div>
-                            <div></div>
-                            <div></div>
+                        <div class="seed-loading">
+                            <div class="loading-wave">
+                                <div class="loading-bar"></div>
+                                <div class="loading-bar"></div>
+                                <div class="loading-bar"></div>
+                                <div class="loading-bar"></div>
+                            </div>
                         </div>
                         <div class="loading-text">加载中...</div>
                     </div>
@@ -3556,7 +4329,7 @@
                     .eq('id', requestId);
                 
                 if (error) {
-                    alert('处理请求失败: ' + error.message);
+                    showNotification('处理请求失败: ' + error.message, 'error');
                 } else {
                     // 如果是同意请求，还需要创建反向的好友关系
                     if (status === 'accepted') {
@@ -3576,12 +4349,12 @@
                         }
                     }
                     
-                    alert(`好友请求已${status === 'accepted' ? '接受' : '拒绝'}`);
+                    showNotification(`好友请求已${status === 'accepted' ? '接受' : '拒绝'}`, 'success');
                     showFriendRequests(); // 刷新列表
                     checkFriendRequests(); // 更新计数
                 }
             } catch (error) {
-                alert('处理请求失败: ' + error.message);
+                showNotification('处理请求失败: ' + error.message, 'error');
             }
         }
 
@@ -3593,10 +4366,13 @@
             if (isFirstLoad.messages) {
                 container.innerHTML = `
                     <div class="loading-placeholder">
-                        <div class="loading-balls">
-                            <div></div>
-                            <div></div>
-                            <div></div>
+                        <div class="seed-loading">
+                            <div class="loading-wave">
+                                <div class="loading-bar"></div>
+                                <div class="loading-bar"></div>
+                                <div class="loading-bar"></div>
+                                <div class="loading-bar"></div>
+                            </div>
                         </div>
                         <div class="loading-text">加载中...</div>
                     </div>
@@ -3669,11 +4445,11 @@
             if (!supabase) return;
 
             const searchTerm = document.getElementById('searchUser').value.trim();
-            const messageElement = document.getElementById('searchMessage');
+            const searchMessage = document.getElementById('searchMessage');
             
-            messageElement.textContent = '';
+            searchMessage.textContent = '';
             if (!searchTerm) {
-                messageElement.textContent = '请输入搜索内容';
+                showNotification('请输入搜索内容', 'info');
                 return;
             }
 
@@ -3685,7 +4461,7 @@
                     .neq('id', currentUser.id);
 
                 if (error) {
-                    messageElement.textContent = '搜索失败: ' + error.message;
+                    showNotification('搜索失败: ' + error.message, 'error');
                     return;
                 }
 
@@ -3694,6 +4470,7 @@
 
                 if (!users || users.length === 0) {
                     results.innerHTML = '<div class="empty-state">未找到用户</div>';
+                    showNotification('未找到匹配的用户', 'info');
                     return;
                 }
 
@@ -3730,9 +4507,11 @@
                     });
                 }, 100);
 
+                showNotification('搜索成功，共找到 ' + users.length + ' 位用户', 'success');
+
             } catch (error) {
                 console.error('搜索用户失败:', error);
-                document.getElementById('searchMessage').textContent = '搜索失败: ' + error.message;
+                showNotification('搜索失败: ' + error.message, 'error');
             }
         }
 
@@ -3749,9 +4528,9 @@
 
                 if (existing) {
                     if (existing.status === 'accepted') {
-                        alert('你们已经是好友了！');
+                        showNotification('你们已经是好友了！', 'info');
                     } else if (existing.status === 'pending') {
-                        alert('好友请求已发送，等待对方确认');
+                        showNotification('好友请求已发送，等待对方确认', 'info');
                     }
                     return;
                 }
@@ -3764,12 +4543,12 @@
                 }]);
                 
                 if (error) {
-                    alert('发送失败: ' + error.message);
+                    showNotification('发送失败: ' + error.message, 'error');
                 } else {
-                    alert('好友请求已发送！');
+                    showNotification('好友请求已发送！', 'success');
                 }
             } catch (error) {
-                alert('发送好友请求失败: ' + error.message);
+                showNotification('发送好友请求失败: ' + error.message, 'error');
             }
         }
 
@@ -3784,8 +4563,9 @@
                 
                 if (error) throw error;
                 loadFriends();
+                showNotification('好友删除成功', 'success');
             } catch (error) {
-                alert('删除好友失败: ' + error.message);
+                showNotification('删除好友失败: ' + error.message, 'error');
             }
         }
 
@@ -3796,7 +4576,7 @@
             supabase.from('profiles').select('*').eq('id', userId).single()
                 .then(({ data: user, error }) => {
                     if (error) {
-                        alert('获取用户消息失败: ' + error.message);
+                        showNotification('获取用户消息失败: ' + error.message, 'error');
                         return;
                     }
                     
@@ -3805,7 +4585,7 @@
                     }
                 })
                 .catch(error => {
-                    alert('添加好友失败: ' + error.message);
+                    showNotification('添加好友失败: ' + error.message, 'error');
                 });
         }
 
@@ -3815,7 +4595,7 @@
             supabase.from('profiles').select('*').eq('id', userId).single()
                 .then(({ data: user, error }) => {
                     if (error) {
-                        alert('获取用户消息失败: ' + error.message);
+                        showNotification('获取用户消息失败: ' + error.message, 'error');
                         return;
                     }
                     
@@ -3840,7 +4620,7 @@
                     subscribeToMessages();
                 })
                 .catch(error => {
-                    alert('开始聊天失败: ' + error.message);
+                    showNotification('开始聊天失败: ' + error.message, 'error');
                 });
         }
 
@@ -3852,10 +4632,28 @@
             if (isFirstLoad.chat) {
                 container.innerHTML = `
                     <div class="loading-placeholder">
-                        <div class="loading-balls">
-                            <div></div>
-                            <div></div>
-                            <div></div>
+                        <div class="seed-loading">
+                            <div class="loader">
+                                <svg viewBox="0 0 100 100">
+                                    <path class="s" d="M30,35 C30,35 35,30 40,30 C45,30 50,35 50,40 C50,45 45,50 40,50 C35,50 30,45 30,40 C30,35 30,35 30,35"/>
+                                </svg>
+                            </div>
+                            <div class="loader">
+                                <svg viewBox="0 0 100 100">
+                                    <path class="e1" d="M30,30 L65,30 L65,35 L35,35 L35,50 L60,50 L60,55 L35,55 L35,70 L30,70 Z"/>
+                                </svg>
+                            </div>
+                            <div class="loader">
+                                <svg viewBox="0 0 100 100">
+                                    <path class="e2" d="M30,30 L65,30 L65,35 L35,35 L35,50 L60,50 L60,55 L35,55 L35,70 L30,70 Z"/>
+                                </svg>
+                            </div>
+                            <div class="loading-wave">
+                            <div class="loading-bar"></div>
+                            <div class="loading-bar"></div>
+                            <div class="loading-bar"></div>
+                            <div class="loading-bar"></div>
+                        </div>
                         </div>
                         <div class="loading-text">加载中...</div>
                     </div>
@@ -3872,16 +4670,15 @@
 
                 if (error) throw error;
 
-                // 只在有数据或第一次加载时更新界面
-                if (isFirstLoad.chat || messages) {
-                    container.innerHTML = '';
+                // 总是更新界面，无论是否有数据
+                container.innerHTML = '';
 
-                    if (!messages || messages.length === 0) {
-                        container.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">暂无消息，开始对话吧！</div>';
-                        return;
-                    }
+                if (!messages || messages.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">暂无消息，开始对话吧！</div>';
+                    return;
+                }
 
-                    messages.forEach(message => {
+                messages.forEach(message => {
                         const messageElement = document.createElement('div');
                         messageElement.style.margin = '10px 0';
                         messageElement.innerHTML = `
@@ -3899,8 +4696,7 @@
                         `;
                         container.appendChild(messageElement);
                     });
-                    container.scrollTop = container.scrollHeight;
-                }
+                container.scrollTop = container.scrollHeight;
                 
                 // 隐藏新消息提示
                 document.getElementById('newChatMessageIndicator').style.display = 'none';
@@ -3914,11 +4710,9 @@
             if (!supabase || !currentUser || !currentChatUser) return;
 
             const content = document.getElementById('messageText').value.trim();
-            const messageElement = document.getElementById('messageSendMessage');
             
-            messageElement.textContent = '';
             if (!content) {
-                messageElement.textContent = '请输入消息内容';
+                showNotification('请输入消息内容', 'error');
                 return;
             }
 
@@ -3931,13 +4725,14 @@
                 }]);
 
                 if (error) {
-                    messageElement.textContent = '发送失败: ' + error.message;
+                    showNotification('发送失败: ' + error.message, 'error');
                 } else {
                     document.getElementById('messageText').value = '';
+                    showNotification('发送成功！', 'success');
                     loadMessages(currentChatUser.id);
                 }
             } catch (error) {
-                messageElement.textContent = '发送失败: ' + error.message;
+                showNotification('发送失败: ' + error.message, 'error');
             }
         }
 
@@ -3949,9 +4744,10 @@
                 .then(({ error }) => {
                     if (error) throw error;
                     loadPosts();
+                    showNotification('消息删除成功', 'success');
                 })
                 .catch(error => {
-                    alert('删除消息失败: ' + error.message);
+                    showNotification('删除消息失败: ' + error.message, 'error');
                 });
         }
 
@@ -3959,22 +4755,19 @@
             if (!supabase || !isSuperAdmin) return;
             
             const postId = document.getElementById('deletePostId').value.trim();
-            const messageElement = document.getElementById('adminMessage');
             
-            messageElement.textContent = '';
             if (!postId) {
-                messageElement.textContent = '请输入消息ID';
+                showNotification('请输入消息ID', 'error');
                 return;
             }
 
             try {
                 const { error } = await supabase.from('posts').delete().eq('id', postId);
                 if (error) throw error;
-                messageElement.textContent = '消息删除成功';
-                messageElement.className = 'success-message';
+                showNotification('消息删除成功', 'success');
                 document.getElementById('deletePostId').value = '';
             } catch (error) {
-                messageElement.textContent = '删除消息失败: ' + error.message;
+                showNotification('删除消息失败: ' + error.message, 'error');
             }
         }
 
@@ -3982,22 +4775,19 @@
             if (!supabase || !isSuperAdmin) return;
 
             const userId = document.getElementById('banUserId').value.trim();
-            const messageElement = document.getElementById('adminMessage');
             
-            messageElement.textContent = '';
             if (!userId) {
-                messageElement.textContent = '请输入用户ID';
+                showNotification('请输入用户ID', 'error');
                 return;
             }
 
             try {
                 const { error } = await supabase.from('profiles').update({ is_banned: true }).eq('id', userId);
                 if (error) throw error;
-                messageElement.textContent = `用户 ${userId} 已被封禁`;
-                messageElement.className = 'success-message';
+                showNotification(`用户 ${userId} 已被封禁`, 'success');
                 document.getElementById('banUserId').value = '';
             } catch (error) {
-                messageElement.textContent = '封禁失败: ' + error.message;
+                showNotification('封禁失败: ' + error.message, 'error');
             }
         }
 
@@ -4062,7 +4852,7 @@
                 checkAuthState();
                 console.log('初始化完成');
             } else {
-                document.getElementById('loginMessage').textContent = '系统初始化失败，请刷新页面';
+                showNotification('系统初始化失败，请刷新页面', 'error');
             }
         });
 
