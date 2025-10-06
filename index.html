@@ -2356,6 +2356,12 @@
                 navToggleBtn.style.display = 'flex';
             }
             
+            // 初始化时隐藏固定输入框，只有登录后才显示
+            const fixedInputContainer = document.querySelector('.fixed-input-container');
+            if (fixedInputContainer && !currentUser) {
+                fixedInputContainer.style.display = 'none';
+            }
+            
             // 添加点击事件监听器
             if (navToggleBtn && sidebar && contentArea) {
                 navToggleBtn.addEventListener('click', function() {
@@ -3027,6 +3033,16 @@
                 isSuperAdmin = user.uid === SUPER_ADMIN.uid;
                 showUserInfo(user);
                 checkFriendRequests();
+                
+                // 登录成功后，根据当前标签页状态设置输入框显示
+                const fixedInputContainer = document.querySelector('.fixed-input-container');
+                if (fixedInputContainer) {
+                    if (currentTab === 'posts') {
+                        fixedInputContainer.style.display = 'block';
+                    } else {
+                        fixedInputContainer.style.display = 'none';
+                    }
+                }
                 
             } catch (error) {
                 console.error('登录错误:', error);
