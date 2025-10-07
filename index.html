@@ -168,6 +168,122 @@
             .nav-icon::before {
                 font-size: 20px;
             }
+            
+            /* 固定输入框竖屏深度优化 */
+            .fixed-input-container {
+                padding: 3px 6px;
+                box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.05);
+            }
+            
+            .fixed-post-form {
+                gap: 4px;
+                padding: 4px;
+                align-items: center;
+            }
+            
+            .fixed-post-form .form-group {
+                flex: 1;
+                margin: 0;
+            }
+            
+            .fixed-post-form textarea {
+                min-height: 36px;
+                padding: 6px 8px;
+                font-size: 14px;
+                line-height: 1.3;
+            }
+            
+            .button-group {
+                gap: 3px;
+                margin-top: 0;
+                display: flex;
+                align-items: center;
+                flex-shrink: 0;
+            }
+            
+            .emoji-button {
+                padding: 4px;
+                width: 32px;
+                height: 32px;
+                min-width: 32px;
+                background: #f5f5f5;
+                border-radius: 6px;
+            }
+            
+            .emoji-button svg {
+                width: 16px;
+                height: 16px;
+            }
+            
+            /* 彻底简化竖屏设备的按钮 */
+            #createPostBtn.custom-button,
+            #sendMessageBtn.custom-button {
+                min-width: auto !important;
+                width: 50px !important;
+                height: 32px !important;
+                padding: 0 !important;
+                border-radius: 6px !important;
+                box-shadow: none !important;
+                background: #4285f4 !important;
+                color: white !important;
+                font-size: 12px !important;
+                position: relative !important;
+                overflow: hidden !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+            
+            #createPostBtn.custom-button .outline,
+            #sendMessageBtn.custom-button .outline,
+            #createPostBtn.custom-button::before,
+            #sendMessageBtn.custom-button::before,
+            #createPostBtn.custom-button::after,
+            #sendMessageBtn.custom-button::after {
+                display: none !important;
+            }
+            
+            #createPostBtn.custom-button .state.state--default p,
+            #sendMessageBtn.custom-button .state.state--default p {
+                padding-left: 0 !important;
+                margin: 0;
+                font-size: 12px !important;
+                line-height: 1;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                width: 100% !important;
+                height: 100% !important;
+                letter-spacing: 0 !important;
+            }
+            
+            #createPostBtn.custom-button .state.state--default p span,
+            #sendMessageBtn.custom-button .state.state--default p span {
+                display: inline-block !important;
+                padding: 0 !important;
+            }
+            
+            #createPostBtn.custom-button .state.state--default .icon,
+            #sendMessageBtn.custom-button .state.state--default .icon {
+                display: none !important;
+            }
+            
+            #createPostBtn.custom-button:hover,
+            #sendMessageBtn.custom-button:hover {
+                transform: none !important;
+                background: #3367d6 !important;
+            }
+            
+            /* 消息模态框中的发送按钮特殊处理 */
+            #messageModal #sendMessageBtn.custom-button {
+                width: 60px !important;
+                margin-top: 8px !important;
+            }
+            
+            /* 内容区域底部边距调整 */
+            .content-area {
+                padding-bottom: 60px;
+            }
         }
         
         /* 侧边栏移动端适配 */
@@ -1246,7 +1362,7 @@
             padding: var(--spacing-sm); 
             background: #fce8e6; 
             border-radius: var(--border-radius-xs); 
-            display: block;
+            display: none; /* 默认隐藏，只有需要显示时才设置为block */
         }
         
         .success-message { 
@@ -1657,18 +1773,19 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             z-index: 99999;
             transform: translateX(100%);
-            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out, border-color 0.3s ease-out;
             opacity: 0;
             max-width: 300px;
             display: flex;
             align-items: center;
             gap: 8px;
-            border: 1px solid;
+            border: 1px solid transparent; /* 默认透明边框，避免隐藏时残留 */
         }
         
         .notification.show {
             transform: translateX(0);
             opacity: 1;
+            border-color: inherit; /* 只有显示时才应用继承的边框颜色 */
         }
         
         .notification.success {
@@ -1731,18 +1848,18 @@
         /* 自定义右键菜单样式 - 美化版 */
         .context-menu {
             position: fixed;
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
             border-radius: var(--border-radius-lg);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1), 0 2px 10px rgba(0, 0, 0, 0.07);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.18) inset;
             padding: var(--spacing-md);
             z-index: 999999;
             display: none;
             min-width: 180px;
             transform-origin: top left;
-            transition: transform 0.2s var(--md-motion-ease), opacity 0.2s var(--md-motion-ease);
+            transition: transform 0.2s var(--md-motion-ease), opacity 0.2s var(--md-motion-ease), background-color 0.3s ease;
             opacity: 0;
             transform: scale(0.95);
         }
@@ -2584,10 +2701,10 @@
             <span id="notificationContent"></span>
         </div>
         <button class="notification-close" aria-label="关闭通知">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-        </button>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
     </div>
 
     <!-- 先加载 Supabase 库 -->
@@ -3596,13 +3713,26 @@
             const newCloseButton = closeButton.cloneNode(true);
             closeButton.parentNode.replaceChild(newCloseButton, closeButton);
             
-            // 添加关闭按钮点击事件
-            newCloseButton.addEventListener('click', function() {
-                notification.classList.remove('show');
-                setTimeout(() => {
-                    notification.style.display = 'none';
-                }, 300);
-            });
+            // 根据消息内容判断是使用关闭功能还是刷新页面功能
+            if (message === '您已成功退出登录，请刷新网页') {
+                // 退出登录提示框：使用刷新图标和刷新页面功能
+                const refreshIconSvg = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">' +
+                    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />' +
+                    '</svg>';
+                newCloseButton.innerHTML = refreshIconSvg;
+                newCloseButton.setAttribute('aria-label', '刷新页面');
+                newCloseButton.addEventListener('click', function() {
+                    window.location.reload();
+                });
+            } else {
+                // 其他提示框：保持原来的关闭功能
+                newCloseButton.addEventListener('click', function() {
+                    notification.classList.remove('show');
+                    setTimeout(() => {
+                        notification.style.display = 'none';
+                    }, 300);
+                });
+            }
             
             // 显示通知
             notification.style.display = 'block';
@@ -4792,6 +4922,10 @@
         }
 
         function logout() {
+            // 先显示退出登录成功提示，确保用户在当前界面看到提示
+            showNotification('您已成功退出登录，请刷新网页', 'info', 5000);
+            
+            // 然后再执行退出登录的清理工作
             // 先清除所有状态和订阅
             currentUser = null;
             isSuperAdmin = false;
