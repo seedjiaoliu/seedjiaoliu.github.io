@@ -38,6 +38,106 @@
             --transitions: all 0.3s var(--md-motion-ease);
         }
         
+        /* WinUI 风格调色板 - 游客账号专用 (灰色加白色主题) */
+        .winui-theme {
+            --winui-bg-primary: #f8f9fa;
+            --winui-bg-secondary: #ffffff;
+            --winui-bg-card: #ffffff;
+            --winui-bg-hover: #f1f3f5;
+            --winui-bg-active: #e9ecef;
+            --winui-bg-transparent: rgba(255, 255, 255, 0.95);
+            --winui-text-primary: #212529;
+            --winui-text-secondary: #6c757d;
+            --winui-text-tertiary: #adb5bd;
+            --winui-border-color: #f1f3f5;
+            --winui-accent-color: #e9ecef;
+            --winui-accent-hover: #adb5bd;
+            --winui-accent-active: #6c757d;
+            --winui-header-gradient: linear-gradient(90deg, #e9ecef, #adb5bd);
+            --winui-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --winui-card-radius: 12px;
+            --winui-button-radius: 8px;
+            --winui-input-radius: 8px;
+            --winui-sidebar-radius: 16px 0 0 16px;
+            --winui-blur: backdrop-filter: blur(12px);
+        }
+        
+        /* 暗色主题 - 游客登录专用 */
+        .dark-theme {
+            --bg-color: #121212;
+            --accentLightTint: #374151;
+            --darkerColor: #4b5563;
+            --darkColor: #6b7280;
+            --textColorDark: #e5e7eb;
+            --whitishColor: #1e1e1e;
+            --borderColor: #374151;
+            --input-bg: #2d3748;
+            --input-focus-border: rgba(229, 231, 235, 0.3);
+            --input-placeholder: #9ca3af;
+            --glass-effect: rgba(255, 255, 255, 0.08);
+        }
+        
+        /* 暗色主题过渡动画 - 圆弧波纹效果 */
+        .dark-theme-transition {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 300%;
+            height: 300%;
+            background: radial-gradient(circle at 0% 100%, transparent 0%, transparent 30%, #121212 70%);
+            z-index: 9999;
+            transform-origin: bottom left;
+            transform: scale(2);
+            opacity: 0;
+            transition: transform 1.2s cubic-bezier(0.17, 0.67, 0.1, 1.05), opacity 0.8s ease-out;
+            border-radius: 50%;
+        }
+        
+        .dark-theme-transition.active {
+            transform: scale(0.5);
+            opacity: 1;
+        }
+        
+        .dark-theme body {
+            background: var(--bg-color);
+            color: var(--textColorDark);
+        }
+        
+        .dark-theme .container {
+            background: var(--whitishColor);
+        }
+        
+        .dark-theme header {
+            background: linear-gradient(135deg, #1f2937, #374151);
+        }
+        
+        .dark-theme .input {
+            background: var(--input-bg);
+            border-color: var(--borderColor);
+            color: var(--textColorDark);
+        }
+        
+        .dark-theme .auth-section {
+            background: var(--whitishColor);
+            border: 1px solid var(--borderColor);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .dark-theme .auth-section h2 {
+            color: var(--textColorDark);
+        }
+        
+        .dark-theme button {
+            background: var(--glass-effect);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--textColorDark);
+        }
+        
+        .dark-theme button:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
         * { 
             box-sizing: border-box; 
             margin: 0; 
@@ -711,6 +811,198 @@
         
         .emoji-grid span:hover {
             background: var(--accentLightTint);
+        }
+        
+        /* WinUI 风格组件样式 - 优化版 */
+        .winui-theme body {
+            background: var(--winui-bg-primary);
+            font-family: 'Segoe UI', 'Noto Sans SC', sans-serif;
+            color: var(--winui-text-primary);
+            transition: all 0.3s ease;
+        }
+        
+        .winui-theme .container {
+            background: var(--winui-bg-secondary);
+            border-radius: 16px;
+            box-shadow: var(--winui-shadow);
+            overflow: hidden;
+        }
+        
+        .winui-theme header {
+            background: var(--winui-accent-color);
+            background-image: var(--winui-header-gradient);
+            border-radius: 0;
+            box-shadow: 0 2px 8px rgba(173, 181, 189, 0.3);
+        }
+        
+        .winui-theme .nav-toggle-btn {
+            background: var(--winui-bg-secondary);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            border-radius: 12px;
+            border: 1px solid var(--winui-border-color);
+        }
+        
+        .winui-theme .nav-tab {
+            background: transparent;
+            border: none;
+            border-radius: var(--winui-button-radius);
+            color: var(--winui-text-primary);
+            transition: all 0.2s ease;
+            padding: 10px 16px;
+            font-weight: 500;
+        }
+        
+        .winui-theme .nav-tab:hover {
+            background: var(--winui-bg-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .winui-theme .nav-tab.active {
+            background: var(--winui-accent-color);
+            color: #212529;
+            box-shadow: 0 3px 10px rgba(173, 181, 189, 0.2);
+        }
+        
+        /* 卡片类组件 */
+        .winui-theme .post-form,
+        .winui-theme .post,
+        .winui-theme .friend-item,
+        .winui-theme .message-thread,
+        .winui-theme .user-search-result {
+            background: var(--winui-bg-card);
+            border: 1px solid var(--winui-border-color);
+            border-radius: var(--winui-card-radius);
+            box-shadow: var(--winui-shadow);
+            transition: all 0.2s ease;
+        }
+        
+        .winui-theme .post-form:hover,
+        .winui-theme .post:hover,
+        .winui-theme .friend-item:hover,
+        .winui-theme .message-thread:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+            transform: translateY(-1px);
+        }
+        
+        /* 按钮样式 */
+        .winui-theme button {
+            background: var(--winui-accent-color);
+            border-radius: var(--winui-button-radius);
+            text-transform: none;
+            letter-spacing: normal;
+            font-weight: 500;
+            padding: 10px 20px;
+            border: none;
+            color: #212529;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(173, 181, 189, 0.3);
+        }
+        
+        .winui-theme button:hover {
+            background: var(--winui-accent-hover);
+            transform: translateY(-1px);
+            color: white;
+            box-shadow: 0 3px 8px rgba(108, 117, 125, 0.3);
+        }
+        
+        .winui-theme button:active {
+            background: var(--winui-accent-active);
+            transform: translateY(0);
+            color: white;
+            box-shadow: 0 1px 3px rgba(108, 117, 125, 0.2);
+        }
+        
+        /* 输入框样式 */
+        .winui-theme .input {
+            background: var(--winui-bg-card);
+            border: 1px solid var(--winui-border-color);
+            border-radius: var(--winui-input-radius);
+            color: var(--winui-text-primary);
+            padding: 12px 16px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .winui-theme .input:focus,
+        .winui-theme .input:hover {
+            border-color: var(--winui-accent-hover);
+            background: var(--winui-bg-secondary);
+            box-shadow: 0 0 0 3px rgba(173, 181, 189, 0.2);
+            outline: none;
+        }
+        
+        /* 固定输入容器 */
+        .winui-theme .fixed-input-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid var(--winui-border-color);
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* 模态框 */
+        .winui-theme .modal-content {
+            background: var(--winui-bg-secondary);
+            border-radius: 12px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+            border: 1px solid var(--winui-border-color);
+            overflow: hidden;
+        }
+        
+        /* 侧边栏 */
+        .winui-theme .sidebar {
+            background: var(--winui-bg-secondary);
+            border-right: 1px solid var(--winui-border-color);
+            border-radius: var(--winui-sidebar-radius);
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* 内容区域 */
+        .winui-theme .content-area {
+            background: var(--winui-bg-primary);
+            border-radius: 0 var(--winui-sidebar-radius) var(--winui-sidebar-radius) 0;
+        }
+        
+        /* 圆角按钮 */
+        .winui-theme .rounded-button {
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--winui-accent-color);
+            color: #212529;
+            border: none;
+            box-shadow: 0 2px 8px rgba(173, 181, 189, 0.3);
+            transition: all 0.2s ease;
+        }
+        
+        .winui-theme .rounded-button:hover {
+            transform: scale(1.05);
+            background: var(--winui-accent-hover);
+            color: white;
+            box-shadow: 0 3px 12px rgba(108, 117, 125, 0.35);
+        }
+        
+        /* 毛玻璃效果 */
+        .winui-theme .glass-effect {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        /* 加载动画 */
+        .winui-theme .loading-wave {
+            gap: 4px;
+        }
+        
+        .winui-theme .loading-bar {
+            background: var(--winui-accent-color);
+            border-radius: 3px;
         }
         
         .fixed-post-btn {
@@ -3117,6 +3409,9 @@
             // 初始化Supabase连接
             initSupabase();
             
+            // 检查认证状态（会处理主题应用）
+            checkAuthState();
+            
             const navToggleBtn = document.getElementById('navToggleBtn');
             const sidebar = document.querySelector('.sidebar');
             const contentArea = document.querySelector('.content-area');
@@ -3131,9 +3426,6 @@
             if (fixedInputContainer && !currentUser) {
                 fixedInputContainer.style.display = 'none';
             }
-            
-            // 检查用户认证状态
-            checkAuthState();
             
             // 添加点击事件监听器
             if (navToggleBtn && sidebar && contentArea) {
@@ -3718,29 +4010,50 @@
             if (!supabase) return;
             
             try {
-                // 直接检查本地存储的用户消息，而不是Supabase auth
+                // 默认重置为未登录状态
+                document.getElementById('mainContent').classList.remove('logged-in');
+                document.getElementById('authSection').style.display = 'block';
+                document.getElementById('adminBadge').style.display = 'none';
+                document.getElementById('adminTab').style.display = 'none';
+                
+                // 对于游客账号，不保持登录状态
+                // 只有管理员和普通账号才从localStorage恢复登录状态
                 const savedUser = localStorage.getItem('currentUser');
                 if (savedUser) {
                     const userData = JSON.parse(savedUser);
-                    currentUser = { id: userData.id };
-                    isSuperAdmin = userData.uid === SUPER_ADMIN.uid;
-                    
-                    // 显示用户消息
-                    document.getElementById('userName').textContent = userData.username;
-                    const userAvatar = document.getElementById('userAvatar');
-                    userAvatar.textContent = getInitials(userData.username);
-                    userAvatar.style.background = stringToColor(userData.username);
-                    
-                    document.getElementById('mainContent').classList.add('logged-in');
-                    document.getElementById('authSection').style.display = 'none';
-                    
-                    if (isSuperAdmin) {
-                        document.getElementById('adminBadge').style.display = 'block';
-                        document.getElementById('adminTab').style.display = 'block';
+                    // 只有不是游客账号（uid不是'未知'）的用户才恢复登录状态
+                    if (userData.uid !== '未知') {
+                        currentUser = { id: userData.id };
+                        isSuperAdmin = userData.uid === SUPER_ADMIN.uid;
+                        
+                        // 显示用户消息
+                        document.getElementById('userName').textContent = userData.username;
+                        const userAvatar = document.getElementById('userAvatar');
+                        userAvatar.textContent = getInitials(userData.username);
+                        userAvatar.style.background = stringToColor(userData.username);
+                        
+                        document.getElementById('mainContent').classList.add('logged-in');
+                        document.getElementById('authSection').style.display = 'none';
+                        
+                        if (isSuperAdmin) {
+                            document.getElementById('adminBadge').style.display = 'block';
+                            document.getElementById('adminTab').style.display = 'block';
+                        }
+                    } else {
+                        // 如果是游客账号，删除本地存储并显示登录界面
+                        localStorage.removeItem('currentUser');
+                        // 登录界面不应用任何主题，使用默认样式
+                        document.body.classList.remove('winui-theme');
+                        document.body.classList.remove('dark-theme');
                     }
                     
-                    checkFriendRequests();
-                    switchTab('posts');
+                    // 只有在已登录状态下才执行以下操作
+                    if (currentUser) {
+                        checkFriendRequests();
+                        switchTab('posts');
+                    }
+                } else {
+                    // 未登录状态也不执行任何操作，保持默认的未登录UI
                 }
             } catch (error) {
                 console.error('认证检查异常:', error);
@@ -3967,6 +4280,9 @@
             userAvatar.textContent = getInitials(profile.username);
             userAvatar.style.background = stringToColor(profile.username);
             
+            // 重置主题样式
+            document.body.classList.remove('winui-theme');
+            
             if (isSuperAdmin) {
                 document.getElementById('adminBadge').style.display = 'block';
                 document.getElementById('adminTab').style.display = 'block';
@@ -3979,6 +4295,9 @@
             
             // 检查是否为游客账号
             if (profile.username === '匿名' && profile.uid === '未知') {
+                // 应用WinUI主题
+                document.body.classList.add('winui-theme');
+                
                 // 游客账号 - 保留退出登录、消息广场和赞助者列表
                 // 隐藏所有导航标签，只保留消息广场和赞助者列表
                 document.querySelectorAll('.nav-tab').forEach(tab => {
@@ -4081,12 +4400,34 @@
                     userData = newGuestUser;
                 }
 
-                // 登录成功后的处理
+                // 登录成功后的处理 - 游客登录不保存到localStorage
                 currentUser = { id: userData.id };
                 isSuperAdmin = userData.uid === SUPER_ADMIN.uid;
                 showUserInfo(userData);
                 checkFriendRequests();
                 showNotification('游客登录成功，可以在消息广场发布消息！', 'success');
+                
+                // 添加暗色主题过渡动画
+                const transitionOverlay = document.createElement('div');
+                transitionOverlay.className = 'dark-theme-transition';
+                document.body.appendChild(transitionOverlay);
+                
+                // 触发重排然后启动动画
+                void transitionOverlay.offsetWidth;
+                transitionOverlay.classList.add('active');
+                
+                // 动画完成后应用暗色主题并移除过渡层
+                setTimeout(() => {
+                    document.body.classList.remove('winui-theme');
+                    document.body.classList.add('dark-theme');
+                    
+                    // 稍微延迟后移除过渡层，确保主题应用完毕
+                    setTimeout(() => {
+                        if (document.body.contains(transitionOverlay)) {
+                            document.body.removeChild(transitionOverlay);
+                        }
+                    }, 300);
+                }, 700);
 
             } catch (error) {
                 console.error('游客登录异常:', error);
@@ -5196,6 +5537,9 @@
         function logout() {
             // 先显示退出登录成功提示，确保用户在当前界面看到提示
             showNotification('您已成功退出登录，请刷新网页', 'info', 5000);
+            
+            // 移除WinUI主题
+            document.body.classList.remove('winui-theme');
             
             // 然后再执行退出登录的清理工作
             // 先清除所有状态和订阅
