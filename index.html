@@ -498,6 +498,77 @@
         
         .nav-tab .icon {
             margin-right: var(--spacing-md);
+        }
+        
+        /* 赞助者图标 */
+        .icon-sponsor::before {
+            content: "★";
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            font-weight: bold;
+            color: var(--textColorDark);
+        }
+        
+        /* 圆体文字样式 - 流光溢彩效果 */
+        .rounded-text {
+            font-family: 'Arial Rounded MT Bold', 'Helvetica Rounded', sans-serif;
+            font-size: 150px;
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 
+                0 0 10px rgba(255, 255, 255, 0.8),
+                0 0 20px rgba(66, 133, 244, 0.5),
+                0 0 30px rgba(66, 133, 244, 0.3);
+            letter-spacing: 5px;
+            margin: 50px 0;
+            transform: scale(1.1, 1);
+            -webkit-text-stroke: 1px rgba(255, 255, 255, 0.5);
+            /* 流光溢彩的渐变背景 */
+            background: linear-gradient(
+                90deg,
+                #4285f4,
+                #34a853,
+                #fbbc05,
+                #ea4335,
+                #4285f4
+            );
+            background-size: 300% 100%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            /* 动画效果 */
+            animation: glowing 8s linear infinite;
+        }
+        
+        /* 流光动画 */
+        @keyframes glowing {
+            0% {
+                background-position: 0 0;
+            }
+            100% {
+                background-position: 300% 0;
+            }
+        }
+        
+        /* 赞助者页面样式 */
+        .sponsors-page {
+            text-align: center;
+            padding: 50px 20px;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .sponsors-page .empty-state {
+            font-size: 18px;
+            color: var(--input-placeholder);
+            margin-bottom: 40px;
+        }
             filter: none;
         }
         
@@ -2383,6 +2454,9 @@
                 <button id="loginButton" class="ripple">登录</button>
                 <div id="loginMessage" class="error-message"></div>
                 <p style="margin-top: var(--spacing-md);">还没有账号？ <a href="#" id="showRegisterLink" style="color: var(--darkColor); text-decoration: none;">点击注册</a></p>
+                <button id="guestLoginButton" style="margin-top: var(--spacing-md); padding: var(--spacing-sm) var(--spacing-lg); background: #f1f3f4; color: var(--textColorDark);" class="ripple">
+                    不想注册？游客登录
+                </button>
             </div>
 
             <!-- 登录后才显示的内容 -->
@@ -2415,6 +2489,9 @@
                     </div>
                     <div class="nav-tab ripple" data-tab="search">
                         <span class="icon icon-search"></span>搜索
+                    </div>
+                    <div class="nav-tab ripple" data-tab="sponsors">
+                        <span class="icon icon-sponsor"></span>赞助者列表
                     </div>
 
                     <div class="nav-tab ripple" id="adminTab" style="display: none;" data-tab="admin">
@@ -2476,6 +2553,14 @@
 
 
 
+                <!-- 赞助者列表 -->
+                <div class="tab-content" id="sponsorsTab">
+                    <div class="sponsors-page">
+                        <div class="empty-state">暂无赞助者</div>
+                        <div class="rounded-text">seed</div>
+                    </div>
+                </div>
+                
                 <!-- 管理面板 -->
                 <div class="tab-content" id="adminTabContent">
                     <div class="admin-panel">
@@ -3496,6 +3581,7 @@
             });
             document.getElementById('registerBtn').addEventListener('click', register);
             document.getElementById('logoutButton').addEventListener('click', logout);
+            document.getElementById('guestLoginButton').addEventListener('click', guestLogin);
             
             // 模态框关闭按钮
             document.getElementById('closeRegisterModal').addEventListener('click', () => closeModal('registerModal'));
@@ -3783,21 +3869,27 @@
                 showNotification('系统未初始化，请刷新页面', 'error');
                 return;
             }
-            
+
+            // 检查当前用户是否是游客账号
+            if (isGuestAccount()) {
+                showNotification('您当前使用的是游客账号，无法修改昵称', 'error');
+                return;
+            }
+
             const currentPassword = document.getElementById('currentPassword').value.trim();
             const newNickname = document.getElementById('newNickname').value.trim();
-            
+
             // 验证输入
             if (!currentPassword) {
                 showNotification('请输入当前密码', 'error');
                 return;
             }
-            
+
             if (!newNickname) {
                 showNotification('请输入新昵称', 'error');
                 return;
             }
-            
+
             if (newNickname.length < 2 || newNickname.length > 20) {
                 showNotification('昵称长度必须在2-20个字符之间', 'error');
                 return;
@@ -3885,8 +3977,121 @@
             
             switchTab('posts');
             
-            // 在消息广场页面显示登录成功提示
-            showNotification('登录成功，欢迎回来！', 'success');
+            // 检查是否为游客账号
+            if (profile.username === '匿名' && profile.uid === '未知') {
+                // 游客账号 - 保留退出登录、消息广场和赞助者列表
+                // 隐藏所有导航标签，只保留消息广场和赞助者列表
+                document.querySelectorAll('.nav-tab').forEach(tab => {
+                    if (tab.dataset.tab !== 'posts' && tab.dataset.tab !== 'sponsors') {
+                        tab.style.display = 'none';
+                    }
+                });
+                
+                // 隐藏用户区域的所有按钮，只保留退出登录
+                const userSectionButtons = document.querySelector('.user-section').querySelectorAll('button');
+                userSectionButtons.forEach(button => {
+                    if (button.id !== 'logoutButton') {
+                        button.style.display = 'none';
+                    }
+                });
+                
+                // 隐藏用户头像和用户名下方的所有元素（除了退出登录）
+                document.getElementById('adminBadge').style.display = 'none';
+                
+                // 显示游客账号提示
+                showNotification('您当前使用的是游客账号，可以浏览、发布消息和查看赞助者列表', 'info');
+            } else {
+                // 普通账号显示所有功能
+                document.querySelectorAll('.nav-tab').forEach(tab => {
+                    if (tab.id !== 'adminTab' || isSuperAdmin) {
+                        tab.style.display = 'block';
+                    }
+                });
+                
+                const userSectionButtons = document.querySelector('.user-section').querySelectorAll('button');
+                userSectionButtons.forEach(button => {
+                    button.style.display = 'block';
+                });
+                
+                // 在消息广场页面显示登录成功提示
+                showNotification('登录成功，欢迎回来！', 'success');
+            }
+        }
+
+        // 游客登录功能
+        // 检查是否为游客账号
+        function isGuestAccount() {
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                const userData = JSON.parse(savedUser);
+                return userData.username === '匿名' && userData.uid === '未知';
+            }
+            return false;
+        }
+
+        async function guestLogin() {
+            if (!supabase) {
+                showNotification('系统未初始化，请刷新页面', 'error');
+                return;
+            }
+
+            try {
+                // 检查是否已存在游客账号
+                const { data: guestUser, error: checkError } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('username', '匿名')
+                    .eq('uid', '未知')
+                    .single();
+
+                if (checkError && checkError.code !== 'PGRST116') {
+                    // 除了"未找到"错误外的其他错误
+                    console.error('查询游客账号错误:', checkError);
+                    showNotification('获取游客账号失败', 'error');
+                    return;
+                }
+
+                let userData;
+                if (guestUser) {
+                    // 游客账号已存在，直接登录
+                    userData = guestUser;
+                } else {
+                    // 创建新的游客账号
+                    const { error: insertError } = await supabase.from('profiles').insert([{
+                        username: '匿名',
+                        uid: '未知',
+                        password: '111111', // 密码设为6个1
+                        created_at: new Date().toISOString()
+                    }]);
+
+                    if (insertError) {
+                        console.error('创建游客账号错误:', insertError);
+                        showNotification('创建游客账号失败', 'error');
+                        return;
+                    }
+
+                    // 查询刚创建的游客账号
+                    const { data: newGuestUser } = await supabase
+                        .from('profiles')
+                        .select('*')
+                        .eq('username', '匿名')
+                        .eq('uid', '未知')
+                        .single();
+
+                    userData = newGuestUser;
+                }
+
+                // 登录成功后的处理
+                currentUser = { id: userData.id };
+                isSuperAdmin = userData.uid === SUPER_ADMIN.uid;
+                showUserInfo(userData);
+                checkFriendRequests();
+                showNotification('游客登录成功，可以在消息广场发布消息！', 'success');
+
+            } catch (error) {
+                console.error('游客登录异常:', error);
+                showNotification('游客登录失败: ' + error.message, 'error');
+            }
         }
 
         async function login() {
@@ -4648,7 +4853,25 @@
         async function sendFriendRequest(friendId) {
             if (!supabase || !currentUser) return;
 
+            // 检查当前用户是否是游客账号
+            if (isGuestAccount()) {
+                showNotification('您当前使用的是游客账号，无法进行加好友操作', 'error');
+                return;
+            }
+
             try {
+                // 检查目标用户是否是游客账号
+                const { data: targetUser } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', friendId)
+                    .single();
+                
+                if (targetUser && targetUser.username === '匿名' && targetUser.uid === '未知') {
+                    showNotification('对方是游客账号，无法添加为好友', 'error');
+                    return;
+                }
+
                 // 检查是否已经是好友或已有待处理请求
                 const { data: existing } = await supabase
                     .from('friendships')
@@ -4702,11 +4925,23 @@
         function addFriend(userId) {
             if (!supabase || !currentUser) return;
             
+            // 检查当前用户是否是游客账号
+            if (isGuestAccount()) {
+                showNotification('您当前使用的是游客账号，无法进行加好友操作', 'error');
+                return;
+            }
+            
             // 首先获取用户消息
             supabase.from('profiles').select('*').eq('id', userId).single()
                 .then(({ data: user, error }) => {
                     if (error) {
                         showNotification('获取用户消息失败: ' + error.message, 'error');
+                        return;
+                    }
+                    
+                    // 检查目标用户是否是游客账号
+                    if (user.username === '匿名' && user.uid === '未知') {
+                        showNotification('对方是游客账号，无法添加为好友', 'error');
                         return;
                     }
                     
@@ -4740,6 +4975,37 @@
                     
                     // 隐藏新消息提示
                     document.getElementById('newChatMessageIndicator').style.display = 'none';
+                    
+                    // 检查当前用户是否是游客账号或目标用户是否是游客账号
+                    const messageInput = document.getElementById('messageText');
+                    const sendButton = document.getElementById('sendMessageBtn');
+                    
+                    if (isGuestAccount() || (user.username === '匿名' && user.uid === '未知')) {
+                        // 游客账号或目标是游客账号，隐藏输入框和发送按钮
+                        // 显示提示信息
+                        messageInput.style.display = 'none';
+                        sendButton.style.display = 'none';
+                        
+                        // 检查是否已存在提示元素
+                        let guestHint = document.getElementById('guestChatHint');
+                        if (!guestHint) {
+                            guestHint = document.createElement('div');
+                            guestHint.id = 'guestChatHint';
+                            guestHint.style.cssText = 'text-align: center; padding: 15px; color: #666; background-color: #f5f5f5; border-radius: 8px;';
+                            guestHint.textContent = '此账号为游客账号，无法与他私信';
+                            messageInput.parentNode.insertBefore(guestHint, messageInput);
+                        }
+                    } else {
+                        // 普通账号，显示输入框和发送按钮
+                        messageInput.style.display = 'block';
+                        sendButton.style.display = 'block';
+                        
+                        // 移除提示元素
+                        const guestHint = document.getElementById('guestChatHint');
+                        if (guestHint) {
+                            guestHint.remove();
+                        }
+                    }
                     
                     loadMessages(userId);
                     
@@ -4838,6 +5104,12 @@
 
         async function sendMessage() {
             if (!supabase || !currentUser || !currentChatUser) return;
+
+            // 检查当前用户是否是游客账号或目标用户是否是游客账号
+            if (isGuestAccount() || (currentChatUser.username === '匿名' && currentChatUser.uid === '未知')) {
+                showNotification('您当前使用的是游客账号，无法发送私信', 'error');
+                return;
+            }
 
             const content = document.getElementById('messageText').value.trim();
             
