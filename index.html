@@ -251,12 +251,13 @@
             border-right: 1px solid var(--borderColor); 
             flex-shrink: 0; 
             transform: translateX(-100%);
-            position: absolute;
+            position: fixed;
             left: 0;
             top: 0;
             bottom: 0;
             z-index: 900;
             transition: transform 0.3s ease;
+            overflow-y: auto;
         }
         
         .sidebar.show {
@@ -270,9 +271,7 @@
             transition: margin-left 0.3s ease;
         }
         
-        .content-area.sidebar-visible {
-            margin-left: 280px;
-        }
+        /* 侧边栏现在是固定定位，不再需要移动内容区域 */
         
         /* 导航栏切换按钮样式 */
         .nav-toggle-btn {
@@ -375,69 +374,46 @@
                 height: 16px;
             }
             
-            /* 彻底简化竖屏设备的按钮 */
-            #createPostBtn.custom-button,
-            #sendMessageBtn.custom-button {
-                min-width: auto !important;
-                width: 50px !important;
-                height: 32px !important;
-                padding: 0 !important;
-                border-radius: 6px !important;
-                box-shadow: none !important;
-                background: #4285f4 !important;
-                color: white !important;
-                font-size: 12px !important;
-                position: relative !important;
-                overflow: hidden !important;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
+            /* Uiverse.io按钮样式 */
+            .special-send-button {
+                display: flex;
+                align-items: center;
+                font-family: inherit;
+                cursor: pointer;
+                font-weight: 500;
+                font-size: 17px;
+                padding: 0.8em 1.3em 0.8em 0.9em;
+                color: white;
+                background: #ad5389;
+                background: linear-gradient(to right, #0f0c29, #302b63, #24243e);
+                border: none;
+                letter-spacing: 0.05em;
+                border-radius: 16px;
+                transition: all 0.3s ease;
             }
             
-            #createPostBtn.custom-button .outline,
-            #sendMessageBtn.custom-button .outline,
-            #createPostBtn.custom-button::before,
-            #sendMessageBtn.custom-button::before,
-            #createPostBtn.custom-button::after,
-            #sendMessageBtn.custom-button::after {
-                display: none !important;
+            .special-send-button svg {
+                margin-right: 3px;
+                transform: rotate(30deg);
+                transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1);
             }
             
-            #createPostBtn.custom-button .state.state--default p,
-            #sendMessageBtn.custom-button .state.state--default p {
-                padding-left: 0 !important;
-                margin: 0;
-                font-size: 12px !important;
-                line-height: 1;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                width: 100% !important;
-                height: 100% !important;
-                letter-spacing: 0 !important;
+            .special-send-button span {
+                transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1);
             }
             
-            #createPostBtn.custom-button .state.state--default p span,
-            #sendMessageBtn.custom-button .state.state--default p span {
-                display: inline-block !important;
-                padding: 0 !important;
+            .special-send-button:hover svg {
+                transform: translateX(5px) rotate(90deg);
             }
             
-            #createPostBtn.custom-button .state.state--default .icon,
-            #sendMessageBtn.custom-button .state.state--default .icon {
-                display: none !important;
+            .special-send-button:hover span {
+                transform: translateX(7px);
             }
             
-            #createPostBtn.custom-button:hover,
-            #sendMessageBtn.custom-button:hover {
-                transform: none !important;
-                background: #3367d6 !important;
-            }
-            
-            /* 消息模态框中的发送按钮特殊处理 */
-            #messageModal #sendMessageBtn.custom-button {
-                width: 60px !important;
-                margin-top: 8px !important;
+            /* 确保与其他样式不冲突 */
+            .special-send-button.ripple {
+                position: relative;
+                overflow: hidden;
             }
             
             /* 内容区域底部边距调整 */
@@ -452,9 +428,7 @@
                 width: 240px;
             }
             
-            .content-area.sidebar-visible {
-                margin-left: 240px;
-            }
+            /* 侧边栏现在是固定定位，不再需要移动内容区域 */
         }
         
         .auth-section { 
@@ -568,6 +542,41 @@
         
         .btn-success { 
             background: #34a853; 
+        }
+        
+        /* 特殊发送按钮样式 - 来自Uiverse.io by adamgiebl */
+        .special-send-button {
+            display: flex;
+            align-items: center;
+            font-family: inherit;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 17px;
+            padding: 0.8em 1.3em 0.8em 0.9em;
+            color: white;
+            background: #ad5389;
+            background: linear-gradient(to right, #0f0c29, #302b63, #24243e);
+            border: none;
+            letter-spacing: 0.05em;
+            border-radius: 16px;
+        }
+        
+        .special-send-button svg {
+            margin-right: 3px;
+            transform: rotate(30deg);
+            transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1);
+        }
+        
+        .special-send-button span {
+            transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1);
+        }
+        
+        .special-send-button:hover svg {
+            transform: translateX(5px) rotate(90deg);
+        }
+        
+        .special-send-button:hover span {
+            transform: translateX(7px);
         }
         
         .tab-content { 
@@ -2019,6 +2028,36 @@
         .icon-eye { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235f6368'%3E%3Cpath d='M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z'/%3E%3C/svg%3E"); }
         .icon-eye-off { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235f6368'%3E%3Cpath d='M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z'/%3E%3C/svg%3E"); }
 
+        /* ==================== 炸开水花动画效果 ==================== */
+        .button {
+            position: relative;
+            overflow: hidden;
+            transform: translate3d(0, 0, 0);
+        }
+
+        .button:after {
+            content: "";
+            display: block;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            background-image: radial-gradient(circle, rgba(255, 255, 255, 0.8) 10%, transparent 10.01%);
+            background-repeat: no-repeat;
+            background-position: 50%;
+            transform: scale(10, 10);
+            opacity: 0;
+            transition: transform 0.5s, opacity 0.8s;
+        }
+
+        .button:active:after {
+            transform: scale(0, 0);
+            opacity: 0.6;
+            transition: 0s;
+        }
+
         /* ==================== 波纹效果 ==================== */
         .ripple {
             position: relative;
@@ -2054,14 +2093,14 @@
             outline: none;
         }
         
-        /* 为所有按钮添加波纹效果 */
-        button, .nav-tab, .action-btn {
+        /* 为所有按钮添加炸开水花动画效果 */
+        button, .nav-tab, .action-btn, .custom-button {
             position: relative;
             overflow: hidden;
             transform: translate3d(0, 0, 0);
         }
         
-        button:after, .nav-tab:after, .action-btn:after {
+        button:after, .nav-tab:after, .action-btn:after, .custom-button:after {
             content: "";
             display: block;
             position: absolute;
@@ -2070,17 +2109,17 @@
             top: 0;
             left: 0;
             pointer-events: none;
-            background-image: radial-gradient(circle, rgba(255, 255, 255, 0.4) 10%, transparent 10.01%);
+            background-image: radial-gradient(circle, rgba(255, 255, 255, 0.8) 10%, transparent 10.01%);
             background-repeat: no-repeat;
             background-position: 50%;
             transform: scale(10, 10);
             opacity: 0;
-            transition: transform .5s, opacity 1s;
+            transition: transform 0.5s, opacity 0.8s;
         }
         
-        button:active:after, .nav-tab:active:after, .action-btn:active:after {
+        button:active:after, .nav-tab:active:after, .action-btn:active:after, .custom-button:active:after {
             transform: scale(0, 0);
-            opacity: .3;
+            opacity: 0.6;
             transition: 0s;
         }
         
@@ -2962,31 +3001,12 @@
                                 <line x1="15" y1="9" x2="15.01" y2="9"></line>
                             </svg>
                         </button>
-                        <button id="createPostBtn" class="custom-button">
-                            <div class="outline"></div>
-                            <div class="state state--default">
-                                <div class="icon">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="m22 2-7 20-4-9-9-4 20-7Z"></path>
-                                    </svg>
-                                </div>
-                                <p>
-                                    <span style="--i: 0">发</span>
-                                    <span style="--i: 1">布</span>
-                                </p>
-                            </div>
-                            <div class="state state--sent">
-                                <div class="icon">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <polyline points="20 6 9 17 4 12"></polyline>
-                                    </svg>
-                                </div>
-                                <p>
-                                    <span style="--i: 0">已</span>
-                                    <span style="--i: 1">发</span>
-                                    <span style="--i: 2">布</span>
-                                </p>
-                            </div>
+                        <button id="createPostBtn" class="special-send-button ripple">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                            <span>发布</span>
                         </button>
                     </div>
                     <div id="postMessage" class="error-message"></div>
@@ -3068,33 +3088,12 @@
             <div class="form-group">
                 <textarea id="messageText" placeholder="输入消息..." rows="3"></textarea>
             </div>
-            <button id="sendMessageBtn" class="custom-button">
-                <div class="outline"></div>
-                <div class="state state--default">
-                    <div class="icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="m22 2-7 20-4-9-9-4 20-7Z"></path>
-                        </svg>
-                    </div>
-                    <p>
-                        <span style="--i: 0">发</span>
-                        <span style="--i: 1">送</span>
-                        <span style="--i: 2">消</span>
-                        <span style="--i: 3">息</span>
-                    </p>
-                </div>
-                <div class="state state--sent">
-                    <div class="icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                    </div>
-                    <p>
-                        <span style="--i: 0">已</span>
-                        <span style="--i: 1">发</span>
-                        <span style="--i: 2">送</span>
-                    </p>
-                </div>
+            <button id="sendMessageBtn" class="special-send-button ripple">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+                <span>发送消息</span>
             </button>
             <div id="messageSendMessage" class="error-message"></div>
         </div>
@@ -3478,6 +3477,8 @@
             
             // 检查认证状态（会处理主题应用）
             checkAuthState();
+            
+
             
             const navToggleBtn = document.getElementById('navToggleBtn');
             const sidebar = document.querySelector('.sidebar');
@@ -4072,6 +4073,8 @@
                     break;
             }
         }
+
+
 
         async function checkAuthState() {
             if (!supabase) return;
