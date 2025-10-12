@@ -715,6 +715,26 @@
             color: var(--textColorDark);
         }
         
+        /* 图片图标 */
+        .icon-image::before {
+            content: "🖼️";
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* 返回图标 */
+        .icon-back::before {
+            content: "←";
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+        
         /* 圆体文字样式 - 流光溢彩效果 */
         .rounded-text {
             font-family: 'Arial Rounded MT Bold', 'Helvetica Rounded', sans-serif;
@@ -2032,7 +2052,8 @@
         }
 
         /* ==================== 图标样式 ==================== */
-        .icon {
+        .icon,
+        .icon-upload {
             display: inline-block;
             width: 18px;
             height: 18px;
@@ -2054,6 +2075,61 @@
         .icon-logout { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234285f4'%3E%3Cpath d='M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.59L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z'/%3E%3C/svg%3E"); }
         .icon-eye { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235f6368'%3E%3Cpath d='M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z'/%3E%3C/svg%3E"); }
         .icon-eye-off { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235f6368'%3E%3Cpath d='M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z'/%3E%3C/svg%3E"); }
+        .icon-upload { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234285f4'%3E%3Cpath d='M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z'/%3E%3C/svg%3E"); }
+        
+        /* AI图标 - 流光溢彩圆环效果 */
+        .icon-ai {
+            position: relative;
+            width: 18px;
+            height: 18px;
+            display: inline-block;
+            margin-right: 8px;
+            background: #c9d5e0;
+            border-radius: 5px;
+            transform-style: preserve-3d;
+            mix-blend-mode: hard-light;
+            box-shadow:
+              2px 2px 2px -1px rgba(0, 0, 0, 0.15),
+              inset 1px 1px 1px rgba(255, 255, 255, 0.75),
+              -1px -1px 2px rgba(255, 255, 255, 0.55),
+              inset -1px -1px 1px rgba(0, 0, 0, 0.2);
+        }
+        
+        .icon-ai::before {
+            content: "";
+            position: absolute;
+            inset: 3px;
+            background: #acbaca;
+            border-radius: 50%;
+            transform-style: preserve-3d;
+            box-shadow:
+              1px 1px 2px 0 #152b4a66,
+              inset 1px 1px 1px rgba(255, 255, 255, 0.55),
+              -1px -1px 2px rgba(255, 255, 255, 1);
+            z-index: 1;
+        }
+        
+        .icon-ai::after {
+            content: "";
+            position: absolute;
+            inset: 4px;
+            background: linear-gradient(#2196f3, #e91e63);
+            mix-blend-mode: color-burn;
+            border-radius: 50%;
+            animation: anim 2s linear infinite;
+            z-index: 2;
+        }
+        
+        @keyframes anim {
+            0% {
+                transform: rotate(0deg);
+                filter: blur(0.5px);
+            }
+            100% {
+                transform: rotate(360deg);
+                filter: blur(1px);
+            }
+        }
 
         /* ==================== 炸开水花动画效果 ==================== */
         .button {
@@ -2949,14 +3025,183 @@
                     <div class="nav-tab ripple" data-tab="sponsors">
                         <span class="icon icon-sponsor"></span>赞助者列表
                     </div>
-
-                    <div class="nav-tab ripple" id="adminTab" style="display: none;" data-tab="admin">
-                        <span class="icon icon-admin"></span>管理面板
+                    <div class="nav-tab ripple" data-tab="imageHosting">
+                        <span class="icon-upload"></span>图床选择
+                    </div>
+                    <div class="nav-tab ripple" data-tab="ai">
+                        <span class="icon icon-ai"></span>AI
                     </div>
                 </div>
             </aside>
 
             <main class="content-area">
+                <!-- 图床选择样式 -->
+                <style>
+                    .image-hosting-container {
+                        padding: 20px;
+                        text-align: center;
+                    }
+                    .image-hosting-container h2 {
+                        margin-bottom: 30px;
+                        color: var(--text-primary);
+                        font-size: 24px;
+                    }
+                    .hosting-buttons {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 20px;
+                        max-width: 400px;
+                        margin: 0 auto;
+                    }
+                    .hosting-btn {
+                        padding: 12px 25px;
+                        font-size: 16px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 12px;
+                        width: 100%;
+                        max-width: 400px;
+                        margin: 0 auto 15px;
+                        background-color: var(--accent);
+                        color: white;
+                        border: none;
+                        border-radius: var(--border-radius-md);
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                    }
+                    .host-icon {
+                        display: inline-block;
+                        width: 48px;
+                        height: 48px;
+                        line-height: 48px;
+                        text-align: center;
+                        font-size: 16px;
+                        font-weight: bold;
+                        background-color: rgba(255, 255, 255, 0.2);
+                        border-radius: 8px;
+                        text-transform: uppercase;
+                        flex-shrink: 0;
+                    }
+                    /* 为每个图床服务设置独特的背景色 */
+                    .hosting-btn:nth-child(1) .host-icon {
+                        background-color: rgba(66, 133, 244, 0.3);
+                    }
+                    .hosting-btn:nth-child(2) .host-icon {
+                        background-color: rgba(15, 157, 88, 0.3);
+                    }
+                    .hosting-btn:nth-child(3) .host-icon {
+                        background-color: rgba(219, 68, 55, 0.3);
+                    }
+                    .hosting-btn:hover {
+                        background-color: var(--accentDark);
+                        transform: translateY(-2px);
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                    }
+                    .preview-header {
+                        padding: 15px 20px;
+                        background-color: var(--bg-secondary);
+                        border-bottom: 1px solid var(--border);
+                    }
+                    .back-button {
+                        padding: 10px 20px;
+                        background-color: #4285f4;
+                        color: white;
+                        border: 2px solid rgba(255, 255, 255, 0.3);
+                        border-radius: var(--border-radius-md);
+                        cursor: pointer;
+                        font-size: 16px;
+                        font-weight: bold;
+                        transition: all 0.3s ease;
+                        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+                    }
+                    .back-button:hover {
+                        background-color: #3367d6;
+                        transform: translateY(-1px);
+                        box-shadow: 0 2px 8px rgba(66, 133, 244, 0.3);
+                    }
+                    
+                    /* 加载动画样式 */
+                    .loading-overlay {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background-color: rgba(255, 255, 255, 0.8);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        z-index: 10;
+                        display: none;
+                    }
+                    
+                    .loading-spinner {
+                        width: 50px;
+                        height: 50px;
+                        border: 4px solid #f3f3f3;
+                        border-top: 4px solid #4285f4;
+                        border-radius: 50%;
+                        animation: spin 1s linear infinite;
+                    }
+                    
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                    
+                    /* 移动端适配 */
+                    @media (max-width: 768px) {
+                        .hosting-buttons {
+                            width: 100%;
+                            max-width: none;
+                        }
+                        .hosting-btn {
+                            padding: 12px 20px;
+                            font-size: 14px;
+                        }
+                        .image-hosting-container {
+                            padding: 15px;
+                        }
+                        .image-hosting-container h2 {
+                            margin-bottom: 20px;
+                            font-size: 18px;
+                        }
+                    }
+                </style>
+                
+                <!-- 图床选择 -->
+                <div class="tab-content" id="imageHostingTab">
+                    <!-- 选项页面 -->
+                    <div id="hostingOptions">
+                        <div class="image-hosting-container">
+                            <h2>选择图床服务</h2>
+                            <div class="hosting-buttons">
+                                <button class="hosting-btn" data-url="https://freeimage.host/">
+                                    <span class="host-icon">FREE</span> FreeImage.Host
+                                </button>
+                                <button class="hosting-btn" data-url="https://imgtolink.com/">
+                                    <span class="host-icon">LINK</span> ImgToLink
+                                </button>
+                                <button class="hosting-btn" data-url="https://imgbb.com/">
+                                    <span class="host-icon">BB</span> ImgBB
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 预览页面 -->
+                    <div id="hostingPreview" style="display: none; height: 100vh; position: relative;">
+                        <div class="preview-header">
+                            <button id="backButton" class="back-button">← 返回</button>
+                        </div>
+                        <div class="loading-overlay" id="iframeLoading">
+                            <div class="loading-spinner"></div>
+                        </div>
+                        <iframe id="hostingIframe" src="" frameborder="0" style="width: 100%; height: calc(100vh - 50px);"></iframe>
+                    </div>
+                </div>
+
                 <!-- 消息广场 -->
                 <div class="tab-content active" id="postsTab">
                     <div class="new-message-indicator" id="newMessageIndicator">有新消息，点击刷新</div>
@@ -3017,6 +3262,14 @@
                     </div>
                 </div>
                 
+                <!-- AI -->
+                <div class="tab-content" id="aiTab">
+                    <div class="empty-state">
+                        AI功能正在开发中，敬请期待...
+                    </div>
+                    <div class="rounded-text">seed AI</div>
+                </div>
+
                 <!-- 管理面板 -->
                 <div class="tab-content" id="adminTabContent">
                     <div class="admin-panel">
@@ -4011,7 +4264,74 @@
                 tab.addEventListener('click', (e) => {
                     const tabName = e.currentTarget.getAttribute('data-tab');
                     switchTab(tabName);
+                    
+                    // 如果切换到图床标签，确保显示选项页面
+                    if (tabName === 'imageHosting') {
+                        // 确保DOM元素存在
+                        const optionsDiv = document.getElementById('hostingOptions');
+                        const previewDiv = document.getElementById('hostingPreview');
+                        if (optionsDiv) optionsDiv.style.display = 'block';
+                        if (previewDiv) previewDiv.style.display = 'none';
+                        
+                        // 重新初始化图床选择功能以确保事件正确绑定
+                        setTimeout(() => setupImageHosting(), 100);
+                    }
                 });
+            });
+            
+            // 图床选择功能实现 - 简化版（直接在新标签页打开）
+            function setupImageHosting() {
+                // 获取DOM元素
+                const optionsDiv = document.getElementById('hostingOptions');
+                const previewDiv = document.getElementById('hostingPreview');
+                const hostingButtons = document.querySelectorAll('.hosting-btn');
+                
+                // 重置显示状态
+                if (optionsDiv) optionsDiv.style.display = 'block';
+                if (previewDiv) previewDiv.style.display = 'none';
+                
+                // 确保hostingButtons存在且清空之前的事件监听
+                if (hostingButtons && hostingButtons.length > 0) {
+                    // 克隆按钮以移除所有事件监听
+                    const parentDiv = hostingButtons[0].parentNode;
+                    const buttonsCopy = Array.from(hostingButtons);
+                    
+                    // 清空父容器并重新添加按钮
+                    parentDiv.innerHTML = '';
+                    buttonsCopy.forEach(btn => {
+                        const newBtn = btn.cloneNode(true);
+                        parentDiv.appendChild(newBtn);
+                    });
+                    
+                    // 重新获取按钮并绑定新的事件监听
+                    const newHostingButtons = document.querySelectorAll('.hosting-btn');
+                    newHostingButtons.forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const url = this.getAttribute('data-url');
+                            const siteName = this.getAttribute('data-site') || '图床服务';
+                            
+                            if (url) {
+                                // 直接在新标签页打开图床链接
+                                const newTab = window.open(url, '_blank');
+                                
+                                // 检查新标签页是否成功打开（可能被浏览器阻止）
+                                if (newTab) {
+                                    // 显示友好提示
+                                    alert(`正在${siteName}中打开图片上传页面...\n\n您可以在新打开的标签页中上传图片，上传完成后复制图片链接，然后返回本页面粘贴使用。`);
+                                } else {
+                                    // 浏览器可能阻止了弹出窗口，提供备用方案
+                                    alert(`无法自动在新标签页打开${siteName}。\n\n请手动复制以下链接到浏览器中打开：\n${url}\n\n这可能是由于浏览器的弹出窗口阻止程序导致的。`);
+                                }
+                            }
+                        });
+                    });
+                }
+            }
+            
+            // 在DOM加载完成后初始化图床选择功能
+            document.addEventListener('DOMContentLoaded', function() {
+                // 延迟初始化，确保DOM完全加载
+                setTimeout(() => setupImageHosting(), 500);
             });
             
             // 消息相关
@@ -4142,7 +4462,6 @@
                 document.getElementById('mainContent').classList.remove('logged-in');
                 document.getElementById('authSection').style.display = 'block';
                 document.getElementById('adminBadge').style.display = 'none';
-                document.getElementById('adminTab').style.display = 'none';
                 
                 // 对于游客账号，不保持登录状态
                 // 只有管理员和普通账号才从localStorage恢复登录状态
@@ -4180,7 +4499,6 @@
                         
                         if (isSuperAdmin) {
                             document.getElementById('adminBadge').style.display = 'block';
-                            document.getElementById('adminTab').style.display = 'block';
                         }
                     } else {
                         // 如果是游客账号，删除本地存储并显示登录界面
@@ -4450,7 +4768,6 @@
             
             if (isSuperAdmin) {
                 document.getElementById('adminBadge').style.display = 'block';
-                document.getElementById('adminTab').style.display = 'block';
             }
             
             // 保存用户消息到本地存储
@@ -4487,9 +4804,7 @@
             } else {
                 // 普通账号显示所有功能
                 document.querySelectorAll('.nav-tab').forEach(tab => {
-                    if (tab.id !== 'adminTab' || isSuperAdmin) {
-                        tab.style.display = 'block';
-                    }
+                    tab.style.display = 'block';
                 });
                 
                 const userSectionButtons = document.querySelector('.user-section').querySelectorAll('button');
@@ -5779,7 +6094,6 @@
             
             // 隐藏管理员相关元素
             document.getElementById('adminBadge').style.display = 'none';
-            document.getElementById('adminTab').style.display = 'none';
             
             // 最后更新UI状态
             hideAllTabs();
