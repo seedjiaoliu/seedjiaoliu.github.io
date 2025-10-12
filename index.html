@@ -269,6 +269,37 @@
             padding: var(--spacing-md); 
             background: var(--whitishColor); 
             transition: margin-left 0.3s ease;
+            overflow: hidden;
+        }
+        
+        /* 消息广场容器样式 */
+        .posts-container {
+            width: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+        
+        /* 消息广场选项卡样式 */
+        .tab-content.active {
+            display: block;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        /* 消息广场消息样式 */
+        .post {
+            max-width: 100%;
+            margin-left: 0;
+            margin-right: auto;
+            box-sizing: border-box;
+            padding: 15px;
+            overflow: hidden;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
         
         /* 侧边栏现在是固定定位，不再需要移动内容区域 */
@@ -374,7 +405,7 @@
                 height: 16px;
             }
             
-            /* Uiverse.io按钮样式 */
+            /* Uiverse.io按钮样式 - 增强泛光阴影效果 */
             .special-send-button {
                 display: flex;
                 align-items: center;
@@ -384,12 +415,21 @@
                 font-size: 17px;
                 padding: 0.8em 1.3em 0.8em 0.9em;
                 color: white;
-                background: #ad5389;
-                background: linear-gradient(to right, #0f0c29, #302b63, #24243e);
+                background: #3b82f6;
+                background: linear-gradient(to right, #0369a1, #0ea5e9, #3b82f6);
                 border: none;
                 letter-spacing: 0.05em;
                 border-radius: 16px;
                 transition: all 0.3s ease;
+                box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.05),
+                            4px 8px 12px rgba(59, 130, 246, 0.2),
+                            6px 12px 18px rgba(59, 130, 246, 0.1);
+            }
+            
+            .special-send-button:hover {
+                box-shadow: 3px 6px 8px rgba(0, 0, 0, 0.08),
+                            6px 12px 16px rgba(59, 130, 246, 0.25),
+                            9px 18px 24px rgba(59, 130, 246, 0.15);
             }
             
             .special-send-button svg {
@@ -536,48 +576,35 @@
             transform: translateY(0);
         }
         
-        .btn-danger { 
-            background: #ea4335; 
-        }
+        .btn-danger {
+                background: #ea4335;
+                box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.05),
+                            4px 8px 12px rgba(239, 68, 68, 0.2),
+                            6px 12px 18px rgba(239, 68, 68, 0.1);
+                transition: all 0.3s ease;
+            }
+            
+            .btn-danger:hover {
+                box-shadow: 3px 6px 8px rgba(0, 0, 0, 0.08),
+                            6px 12px 16px rgba(239, 68, 68, 0.25),
+                            9px 18px 24px rgba(239, 68, 68, 0.15);
+            }
+            
+            .btn-success { 
+                background: #34a853; 
+                box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.05),
+                            4px 8px 12px rgba(34, 197, 94, 0.2),
+                            6px 12px 18px rgba(34, 197, 94, 0.1);
+                transition: all 0.3s ease;
+            }
+            
+            .btn-success:hover {
+                box-shadow: 3px 6px 8px rgba(0, 0, 0, 0.08),
+                            6px 12px 16px rgba(34, 197, 94, 0.25),
+                            9px 18px 24px rgba(34, 197, 94, 0.15);
+            }
         
-        .btn-success { 
-            background: #34a853; 
-        }
-        
-        /* 特殊发送按钮样式 - 来自Uiverse.io by adamgiebl */
-        .special-send-button {
-            display: flex;
-            align-items: center;
-            font-family: inherit;
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 17px;
-            padding: 0.8em 1.3em 0.8em 0.9em;
-            color: white;
-            background: #ad5389;
-            background: linear-gradient(to right, #0f0c29, #302b63, #24243e);
-            border: none;
-            letter-spacing: 0.05em;
-            border-radius: 16px;
-        }
-        
-        .special-send-button svg {
-            margin-right: 3px;
-            transform: rotate(30deg);
-            transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1);
-        }
-        
-        .special-send-button span {
-            transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1);
-        }
-        
-        .special-send-button:hover svg {
-            transform: translateX(5px) rotate(90deg);
-        }
-        
-        .special-send-button:hover span {
-            transform: translateX(7px);
-        }
+        /* 特殊发送按钮样式已在上方定义 - 带泛光阴影效果 */
         
         .tab-content { 
             display: none; 
@@ -2093,11 +2120,42 @@
             outline: none;
         }
         
-        /* 为所有按钮添加炸开水花动画效果 */
-        button, .nav-tab, .action-btn, .custom-button {
+        /* 泛光阴影效果 - 光源从上往下照射版本 */
+        .glow-shadow {
+            box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.05),
+                        4px 8px 12px rgba(59, 130, 246, 0.2),
+                        6px 12px 18px rgba(59, 130, 246, 0.1);
+            transition: box-shadow 0.3s ease;
+        }
+        
+        .glow-shadow:hover {
+            box-shadow: 3px 6px 8px rgba(0, 0, 0, 0.08),
+                        6px 12px 16px rgba(59, 130, 246, 0.25),
+                        9px 18px 24px rgba(59, 130, 246, 0.15);
+        }
+        
+        /* 为所有按钮添加炸开水花动画效果和泛光阴影 */
+        /* 为所有按钮添加泛光阴影效果 - 覆盖所有类型的按钮 */
+        button, .btn-danger, .btn-success, .btn-primary, .btn-secondary,
+        .special-send-button, .custom-button, .nav-tab, .action-btn,
+        .floating-button .button, .emoji-button, .toggle-password {
             position: relative;
             overflow: hidden;
             transform: translate3d(0, 0, 0);
+            transition: all 0.3s ease;
+        }
+        
+        /* 默认按钮的泛光阴影 - 光源从上往下照射 */
+        button:not(.btn-danger):not(.btn-success):not(.special-send-button):not(.custom-button):not(.no-glow) {
+            box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.05),
+                        4px 8px 12px rgba(59, 130, 246, 0.2),
+                        6px 12px 18px rgba(59, 130, 246, 0.1);
+        }
+        
+        button:not(.btn-danger):not(.btn-success):not(.special-send-button):not(.custom-button):not(.no-glow):hover {
+            box-shadow: 3px 6px 8px rgba(0, 0, 0, 0.08),
+                        6px 12px 16px rgba(59, 130, 246, 0.25),
+                        9px 18px 24px rgba(59, 130, 246, 0.15);
         }
         
         button:after, .nav-tab:after, .action-btn:after, .custom-button:after {
@@ -2497,9 +2555,9 @@
             color: var(--textColorDark);
         }
         
-        /* 复杂按钮样式 - From Uiverse.io by 00Kubi */ 
+        /* 复杂按钮样式 - From Uiverse.io by 00Kubi - 增强泛光阴影效果 */ 
         .custom-button {
-          --primary: #8b5cf6; /* 紫色 */
+          --primary: #3b82f6; /* 蓝色 - 主题色 */
           --secondary: #10b981; /* 绿色 */
           --neutral-1: #ffffff;
           --neutral-2: #f3f4f6;
@@ -2510,9 +2568,9 @@
           text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
           border: none;
           box-shadow:
-            0 1px 1px rgba(255, 255, 255, 0.4),
-            0 8px 16px rgba(139, 92, 246, 0.2),
-            0 3px 6px rgba(139, 92, 246, 0.1);
+            2px 4px 6px rgba(0, 0, 0, 0.05),
+            4px 8px 12px rgba(59, 130, 246, 0.2),
+            6px 12px 18px rgba(59, 130, 246, 0.1);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -2526,15 +2584,15 @@
           font-size: 16px;
           font-weight: 600;
           letter-spacing: -0.2px;
-          color: var(--primary); /* 文字颜色设为紫色 */
+          color: var(--primary); /* 文字颜色设为蓝色 */
         }
 
         .custom-button:hover {
           transform: translateY(-2px) scale(1.02);
           box-shadow:
-            0 2px 2px rgba(255, 255, 255, 0.4),
-            0 18px 32px rgba(0, 0, 0, 0.15),
-            0 8px 12px rgba(0, 0, 0, 0.1);
+            3px 6px 8px rgba(0, 0, 0, 0.08),
+            6px 12px 16px rgba(59, 130, 246, 0.25),
+            9px 18px 24px rgba(59, 130, 246, 0.15);
         }
 
         .custom-button:active {
@@ -3773,7 +3831,7 @@
                                     <div><strong>${user.username}</strong>${isAdminPost ? ' <span class="admin-badge">管理员</span>' : ''}</div>
                                     <div style="color: #666; font-size: 14px;">${new Date(newPost.created_at).toLocaleString()}</div>
                                 </div>
-                                <div style="margin: 15px 0; line-height: 1.6;">${newPost.content}</div>
+                                <div style="margin: 15px 0; line-height: 1.6; max-width: 100%; word-wrap: break-word; overflow-wrap: break-word;">${newPost.content}</div>
                                 <div class="post-actions">
                                     <button class="action-btn ripple" onclick="addFriend('${user.id}')">
                                         <span class="icon icon-add-friend"></span>加好友
@@ -4834,7 +4892,7 @@
                                 <div><strong>${processedUsername}</strong>${isAdminPost ? ' <span class="admin-badge">管理员</span>' : ''}</div>
                                 <div style="color: #666; font-size: 14px;">${new Date(post.created_at).toLocaleString()}</div>
                             </div>
-                            <div style="margin: 15px 0; line-height: 1.6;">${processedContent}</div>
+                            <div style="margin: 15px 0; line-height: 1.6; max-width: 100%; word-wrap: break-word; overflow-wrap: break-word;">${processedContent}</div>
                             <div class="post-actions">
                                 <button class="action-btn ripple" onclick="addFriend('${post.profiles.id}')">
                                     <span class="icon icon-add-friend"></span>加好友
@@ -4917,7 +4975,7 @@
                                 <div><strong>${processedUsername}</strong>${isAdminPost ? ' <span class="admin-badge">管理员</span>' : ''}</div>
                                 <div style="color: #666; font-size: 14px;">${new Date(post.created_at).toLocaleString()}</div>
                             </div>
-                            <div style="margin: 15px 0; line-height: 1.6;">${processedContent}</div>
+                            <div style="margin: 15px 0; line-height: 1.6; max-width: 100%; word-wrap: break-word; overflow-wrap: break-word;">${processedContent}</div>
                             <div class="post-actions">
                                 <button class="action-btn ripple" onclick="addFriend('${post.profiles.id}')">
                                     <span class="icon icon-add-friend"></span>加好友
@@ -5755,14 +5813,306 @@
             }
         });
 
-        // 处理文本中包含"see d"的情况，添加流光溢彩和加粗效果
+        // 处理文本中包含"see d"的情况和链接识别
         function processSeedText(text) {
             if (!text || typeof text !== 'string') return text;
+            
+            // 先处理链接
+            let processedText = recognizeLinks(text);
+            
             // 匹配"see d"（忽略大小写）
             const seedPattern = /see\s*d/gi;
-            return text.replace(seedPattern, match => 
+            return processedText.replace(seedPattern, match => 
                 `<span class="seed-gradient-text" style="font-weight: bold; display: inline-block;">${match}</span>`
             );
+        }
+        
+        // 识别文本中的链接并转换为可点击的元素
+        function recognizeLinks(text) {
+            // 匹配URL的正则表达式 - 支持带协议、带www、纯域名格式
+            const urlPattern = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,}|[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|[a-zA-Z0-9]+\.[^\s]{2,})/gi;
+            
+            return text.replace(urlPattern, match => {
+                // 确保URL有协议
+                let url = match;
+                if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                    url = 'https://' + url;
+                }
+                
+                // 检查是否是图片链接
+                if (isImageUrl(url)) {
+                    // 图片链接，显示预览图
+                    return `<div class="link-preview image-preview" onclick="showImagePreview('${url}')" style="cursor: pointer; margin: 10px 0; border: 1px solid #e0e0e0; border-radius: 4px; padding: 5px; display: inline-block;">` +
+                           `<img src="${url}" alt="图片预览" oncontextmenu="showImageContextMenu(event, '${url}'); return false;" style="max-width: 300px; max-height: 200px; border-radius: 4px;">` +
+                           `</div>`;
+                } else {
+                    // 非图片链接，显示为可点击的标题（使用占位符，实际标题会通过异步方式获取）
+                    const linkId = 'link-' + Math.random().toString(36).substr(2, 9);
+                    setTimeout(() => fetchWebsiteTitle(url, linkId), 100);
+                    return `<a id="${linkId}" href="javascript:void(0)" class="website-link" data-url="${url}" onclick="showWebsitePreview('${url}')" style="color: #1976D2; text-decoration: underline;">${extractDomain(url)} 网站链接</a>`;
+                }
+            });
+        }
+        
+        // 获取网站标题
+        function fetchWebsiteTitle(url, linkId) {
+            const linkElement = document.getElementById(linkId);
+            if (linkElement) {
+                try {
+                    // 尝试使用简单的方式识别常见网站的标题
+                    const domain = extractDomain(url);
+                    let title = domain;
+                    
+                    // 针对常见网站的标题优化
+                    if (url.includes('baidu.com')) {
+                        title = '百度搜索';
+                    } else if (url.includes('google.com') || url.includes('google.cn')) {
+                        title = '谷歌搜索';
+                    } else if (url.includes('github.com')) {
+                        title = 'GitHub - 代码托管平台';
+                    } else if (url.includes('bilibili.com')) {
+                        title = '哔哩哔哩 (゜-゜)つロ 干杯~';
+                    } else if (url.includes('zhihu.com')) {
+                        title = '知乎 - 知识分享平台';
+                    } else if (url.includes('qq.com')) {
+                        title = '腾讯网';
+                    } else if (url.includes('sina.com.cn')) {
+                        title = '新浪网';
+                    } else if (url.includes('sohu.com')) {
+                        title = '搜狐网';
+                    }
+                    
+                    // 如果URL中包含路径信息，尝试从中提取更多信息
+                    if (url.includes('/') && url.split('/').length > 3) {
+                        const pathParts = url.split('/').filter(part => part && part !== 'https:' && part !== 'http:');
+                        if (pathParts.length > 1) {
+                            // 添加路径中的第一个有意义部分作为标题补充
+                            title += ` - ${pathParts[1].replace(/-/g, ' ').replace(/_/g, ' ')}`;
+                        }
+                    }
+                    
+                    linkElement.textContent = title;
+                    
+                    // 在实际应用中，可以考虑使用以下方案：
+                    // 1. 设置一个服务器端代理来获取网页标题
+                    // 2. 使用第三方服务API来获取标题
+                    // 3. 使用浏览器扩展的跨域能力
+                } catch (error) {
+                    console.error('获取网站标题失败:', error);
+                    // 如果出错，至少显示域名
+                    const domain = extractDomain(url);
+                    linkElement.textContent = domain;
+                }
+            }
+        }
+        
+        // 显示图片右键菜单
+        function showImageContextMenu(event, imageUrl) {
+            // 先关闭已有的右键菜单
+            closeContextMenu();
+            
+            // 创建右键菜单
+            const menu = document.createElement('div');
+            menu.className = 'image-context-menu';
+            menu.id = 'imageContextMenu';
+            menu.style.cssText = `
+                position: fixed;
+                background-color: white;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+                padding: 5px 0;
+                z-index: 1001;
+                left: ${event.clientX}px;
+                top: ${event.clientY}px;
+                min-width: 120px;
+            `;
+            
+            // 添加下载选项
+            const downloadOption = document.createElement('div');
+            downloadOption.innerText = '下载图片';
+            downloadOption.style.cssText = `
+                padding: 8px 15px;
+                cursor: pointer;
+                font-size: 14px;
+            `;
+            downloadOption.onmouseover = function() {
+                this.style.backgroundColor = '#f0f0f0';
+            };
+            downloadOption.onmouseout = function() {
+                this.style.backgroundColor = 'white';
+            };
+            downloadOption.onclick = function() {
+                downloadImage(imageUrl);
+                closeContextMenu();
+            };
+            
+            menu.appendChild(downloadOption);
+            document.body.appendChild(menu);
+            
+            // 点击其他地方关闭菜单
+            document.addEventListener('click', closeContextMenu);
+        }
+        
+        // 关闭右键菜单
+        function closeContextMenu() {
+            const menu = document.getElementById('imageContextMenu');
+            if (menu) {
+                document.body.removeChild(menu);
+                document.removeEventListener('click', closeContextMenu);
+            }
+        }
+        
+        // 检查URL是否是图片链接
+        function isImageUrl(url) {
+            const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.svg', '.webp'];
+            const lowerUrl = url.toLowerCase();
+            return imageExtensions.some(ext => lowerUrl.endsWith(ext));
+        }
+        
+        // 显示图片预览弹窗
+        function showImagePreview(imageUrl) {
+            const overlay = document.createElement('div');
+            overlay.className = 'preview-overlay';
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                cursor: pointer;
+            `;
+            
+            const previewContainer = document.createElement('div');
+            previewContainer.className = 'image-preview-container';
+            previewContainer.style.cssText = `
+                max-width: 90%;
+                max-height: 90%;
+                position: relative;
+                cursor: default;
+            `;
+            
+            const image = document.createElement('img');
+            image.src = imageUrl;
+            image.alt = '图片预览';
+            image.style.cssText = `
+                max-width: 100%;
+                max-height: 80vh;
+                border-radius: 8px;
+            `;
+            // 为预览图片添加右键菜单事件处理器
+            image.oncontextmenu = function(event) {
+                showImageContextMenu(event, imageUrl);
+                return false; // 阻止默认右键菜单
+            };
+            image.onload = function() {
+                previewContainer.appendChild(image);
+            };
+            
+            // 移除了关闭按钮，点击空白处可以关闭预览
+            overlay.appendChild(previewContainer);
+            
+            overlay.onclick = function() {
+                document.body.removeChild(overlay);
+            };
+            
+            document.body.appendChild(overlay);
+        }
+        
+        // 下载图片
+        function downloadImage(url) {
+            const link = document.createElement('a');
+            link.href = url;
+            // 从URL中提取文件名
+            const fileName = url.substring(url.lastIndexOf('/') + 1).split('?')[0];
+            link.download = fileName || 'downloaded-image';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // 从URL中提取域名
+        function extractDomain(url) {
+            try {
+                // 创建一个临时的URL对象来解析域名
+                const urlObj = new URL(url);
+                // 去除www.前缀（如果有）
+                return urlObj.hostname.replace(/^www\./, '');
+            } catch (e) {
+                // 如果URL解析失败，返回原始URL的前一部分
+                return url.split('/')[0].split('.')[0];
+            }
+        }
+        
+        // 显示网站预览弹窗
+        function showWebsitePreview(url) {
+            const overlay = document.createElement('div');
+            overlay.className = 'preview-overlay';
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                cursor: pointer;
+            `;
+            
+            const previewContainer = document.createElement('div');
+            previewContainer.className = 'website-preview-container';
+            previewContainer.style.cssText = `
+                width: 90%;
+                height: 90%;
+                max-width: 1200px;
+                max-height: 800px;
+                position: relative;
+                background-color: white;
+                border-radius: 8px;
+                overflow: hidden;
+                cursor: default;
+            `;
+            
+            const iframe = document.createElement('iframe');
+            iframe.src = url;
+            iframe.style.cssText = `
+                width: 100%;
+                height: 100%;
+                border: none;
+            `;
+            
+            const loadingIndicator = document.createElement('div');
+            loadingIndicator.innerText = '加载中...';
+            loadingIndicator.style.cssText = `
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 16px;
+                color: #666;
+            `;
+            
+            previewContainer.appendChild(iframe);
+            previewContainer.appendChild(loadingIndicator);
+            overlay.appendChild(previewContainer);
+            
+            iframe.onload = function() {
+                previewContainer.removeChild(loadingIndicator);
+            };
+            
+            overlay.onclick = function() {
+                document.body.removeChild(overlay);
+            };
+            
+            document.body.appendChild(overlay);
         }
 
         // 处理用户昵称中包含"see d"的情况和管理员账号seedtut
@@ -5791,6 +6141,12 @@
         window.handleWatermelonDonateClick = handleWatermelonDonateClick;
         window.processSeedText = processSeedText;
         window.processUsername = processUsername;
+        window.recognizeLinks = recognizeLinks;
+        window.isImageUrl = isImageUrl;
+        window.showImagePreview = showImagePreview;
+        window.downloadImage = downloadImage;
+        window.showWebsitePreview = showWebsitePreview;
+        window.extractDomain = extractDomain;
         
         // 打钱动画和弹窗逻辑
         window.handleDonateClick = function() {
